@@ -232,38 +232,37 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                  //these don't need to be ranges anymore cuz we stopped using random values, fix later
                 switch bodyANode.position.x {
-                case -350 ... -300:
-                    checkNote(length: length, noteToPlay: "C1")
-                case -299 ... -250:
-                    checkNote(length: length, noteToPlay: "D1")
-                case -249 ... -200:
-                    checkNote(length: length, noteToPlay: "E1")
-                case -199 ... -150:
-                    checkNote(length: length, noteToPlay: "F1")
-                case -149 ... -100:
-                    checkNote(length: length, noteToPlay: "G1")
-                case -99 ... -50:
-                    checkNote(length: length, noteToPlay: "A1")
-                case -49 ... 0:
-                    checkNote(length: length, noteToPlay: "B1")
-                case 1...50:
-                   checkNote(length: length, noteToPlay: "C2")
-                case 51...100:
-                    checkNote(length: length, noteToPlay: "D2")
-                case 101...150:
-                    checkNote(length: length, noteToPlay: "E2")
-                case 151...200:
-                    checkNote(length: length, noteToPlay: "F2")
-                case 201...250:
-                    checkNote(length: length, noteToPlay: "G2")
-                case 251...300:
-                    checkNote(length: length, noteToPlay: "A2")
-                case 301...350:
-                    checkNote(length: length, noteToPlay: "B2")
-                default:
-                    print("this shouldn't happen")
+                    case -350 ... -300:
+                        checkNote(length: length, noteToPlay: "C1")
+                    case -299 ... -250:
+                        checkNote(length: length, noteToPlay: "D1")
+                    case -249 ... -200:
+                        checkNote(length: length, noteToPlay: "E1")
+                    case -199 ... -150:
+                        checkNote(length: length, noteToPlay: "F1")
+                    case -149 ... -100:
+                        checkNote(length: length, noteToPlay: "G1")
+                    case -99 ... -50:
+                        checkNote(length: length, noteToPlay: "A1")
+                    case -49 ... 0:
+                        checkNote(length: length, noteToPlay: "B1")
+                    case 1...50:
+                       checkNote(length: length, noteToPlay: "C2")
+                    case 51...100:
+                        checkNote(length: length, noteToPlay: "D2")
+                    case 101...150:
+                        checkNote(length: length, noteToPlay: "E2")
+                    case 151...200:
+                        checkNote(length: length, noteToPlay: "F2")
+                    case 201...250:
+                        checkNote(length: length, noteToPlay: "G2")
+                    case 251...300:
+                        checkNote(length: length, noteToPlay: "A2")
+                    case 301...350:
+                        checkNote(length: length, noteToPlay: "B2")
+                    default:
+                        print("this shouldn't happen")
                 }
-                
                 contact.bodyA.node!.removeFromParent()
                 contact.bodyB.node!.removeFromParent()
             }
@@ -280,13 +279,14 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         } else {
             //print("this is not a quarter or half note...")
         }
-        
         checkCorrect(noteToCheck: noteToPlay)
     }
     
     ////////////////
     //MARK:Scoring//
     ////////////////
+    
+    //FIX THIS
     
     var notesPlayed = 0
     var nextNote : String!
@@ -322,7 +322,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     public override func mouseDown(with event: NSEvent) {
         shootBeam()
-        print("clicked")
     }
  
     ////////////////////
@@ -369,13 +368,14 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         if i < (song.songArray.count - 1) {
             if ((song.songArray[i]).0) == "N/A" {
                 //delay here
-                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(Int((song.songArray[i]).2))) {
+                delay(Double((song.songArray[i]).2)) {
                     self.playSong()
                 }
             } else {
                 //spawn note
                 spawnNote(note: ((song.songArray[i]).0), octave: ((song.songArray[i]).1), length: ((song.songArray[i]).2))
-                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(Int((song.songArray[i]).2))) {
+                //delay
+                delay(Double((song.songArray[i]).2)) {
                     self.playSong()
                 }
             }
