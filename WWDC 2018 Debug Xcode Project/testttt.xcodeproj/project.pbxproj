@@ -1,0 +1,72 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXFileReference section */
+		03269D752060DDD900493D5D /* WWDC SUBMISSION 2018.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = "WWDC SUBMISSION 2018.playground"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		03269D6E2060DDB400493D5D = {
+			isa = PBXGroup;
+			children = (
+				03269D752060DDD900493D5D /* WWDC SUBMISSION 2018.playground */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		03269D6F2060DDB400493D5D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0920;
+			};
+			buildConfigurationList = 03269D722060DDB400493D5D /* Build configuration list for PBXProject "testttt" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 03269D6E2060DDB400493D5D;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		03269D732060DDB400493D5D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		03269D742060DDB400493D5D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		03269D722060DDB400493D5D /* Build configuration list for PBXProject "testttt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				03269D732060DDB400493D5D /* Debug */,
+				03269D742060DDB400493D5D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 03269D6F2060DDB400493D5D /* Project object */;
+}
