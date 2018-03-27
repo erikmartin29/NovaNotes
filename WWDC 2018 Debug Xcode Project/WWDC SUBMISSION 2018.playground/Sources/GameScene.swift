@@ -33,7 +33,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         lives = 3
         
         //setup nodes
-       
         ship = self.scene?.childNode(withName: "ship") as? SKSpriteNode
         noteSpawner = self.scene?.childNode(withName: "noteSpawner") as? SKSpriteNode
 
@@ -90,7 +89,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     public func spawnNote(note: String, octave: Int, length: Double) {
-        let noteWidth = 43.75
         var noteHeight : Double
         var x: Double = 0
 
@@ -138,36 +136,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             //convert length (in beats) into both height of note (1 beat is 100px in length)
             noteHeight = length * Double(100)
             
-            //change length
-            let newNote = SKShapeNode(rect: CGRect(x: 0, y: 0, width: Double(noteWidth), height: noteHeight))
-
-            newNote.fillColor = .white
-            
-            //center y is set to length so that the end of the collision works properly
-            newNote.physicsBody = SKPhysicsBody(rectangleOf: newNote.frame.size)
-
-            newNote.physicsBody!.isDynamic = false
-            newNote.physicsBody!.affectedByGravity = false
-            newNote.physicsBody!.usesPreciseCollisionDetection = true
-
-            newNote.physicsBody!.categoryBitMask = NoteCategory
-            newNote.physicsBody!.collisionBitMask = 0
-            newNote.physicsBody!.contactTestBitMask = 0x0
-
-            //change to CGPoint later; easier to read this way for now
-            newNote.position.x = CGFloat(x)
-            newNote.position.y = 500
-
-            self.scene?.addChild(newNote)
-
-            //start moving down the screen
-            let move = SKAction.moveBy(x: 0, y: -1500, duration: 15)
-            newNote.run(move)
-
-            //to maintain performance, delete note nodes after they leave the screen.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
-                newNote.removeFromParent()
-            }
+            //add the note to the scene
+            addNoteWithOptions(height: CGFloat(noteHeight), xPosition: CGFloat(x), in: self)
        }
     }
 
@@ -241,6 +211,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     ////////////////////
 
     let song = Song()
+    var i = -1
     //var songBPM = 120
 
     public func setupSong() {
@@ -248,7 +219,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         //get rid of this for loop later. right not it's just a test
         
         // .quarter = .25, half = .5, and so on; fix later
-        for _ in 0...5 {
+    for _ in 0...5 {
         song.addNote(note: "A", octave: 1, length: 0.25)
         song.addDelay(length: 1)
         song.addNote(note: "C", octave: 1, length: 0.5)
@@ -271,9 +242,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         song.addDelay(length: 1)
         }
     }
-    
-    var i = -1
-    
+
     public func playSong() {
         //because of the functionailty of my delay function, a for loop would not work properly
         i = i + 1

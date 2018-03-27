@@ -1,7 +1,6 @@
 import Foundation
 
 public class Song {
-    
     //all the information about each note is stored in this array.
     public var songArray = [(String, Int, Double)]()
     
@@ -10,9 +9,7 @@ public class Song {
    
     public func addNote(note: String, octave: Int, length: Double) {
         songArray.append((note,octave,length))
-        
-        noteArray.append((note,octave,length))
- 
+        //noteArray.append((note,octave,length))
         //print function for testing purposes
         //print(songArray)
     }
