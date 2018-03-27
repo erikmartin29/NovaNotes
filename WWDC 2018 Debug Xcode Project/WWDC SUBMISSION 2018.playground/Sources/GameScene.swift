@@ -2,17 +2,23 @@ import Foundation
 import SpriteKit
 
 public class GameScene: SKScene, SKPhysicsContactDelegate {
-    //nodes:
+    //Nodes
     private var ship: SKSpriteNode!
     private var noteSpawner: SKSpriteNode!
-    
     private var life1: SKSpriteNode!
     private var life2: SKSpriteNode!
     private var life3: SKSpriteNode!
 
+    //Scoring
     private var lives : Int!
+ 
+    //Physics Global Vars
+    let BulletCategory: UInt32 = 0x1 << 0
+    let ShipCategory: UInt32 = 0x1 << 1
+    let NoteCategory: UInt32 = 0x1 << 2
     
-    private var currentSound: String!
+    //array of all contacts to be handled in the next frame
+    var contactQueue = [SKPhysicsContact]()
 
     public override func sceneDidLoad() {
         size = CGSize(width: 700, height: 1000)
@@ -23,9 +29,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         setupSong()
         playSong()
 
+        //start w/ 3 lives
         lives = 3
         
         //setup nodes
+       
         ship = self.scene?.childNode(withName: "ship") as? SKSpriteNode
         noteSpawner = self.scene?.childNode(withName: "noteSpawner") as? SKSpriteNode
 
@@ -53,11 +61,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.scene?.addChild(asteroids)
         
+        physicsWorld.gravity = CGVector.zero
         physicsWorld.contactDelegate = self
     }
 
     func shootBeam() {
-        let beam = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 2, height: 2))
+        let beam = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 15, height: 15))
 
         beam.fillColor = .red
 
@@ -65,30 +74,24 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         beam.physicsBody!.isDynamic = true
         beam.physicsBody!.affectedByGravity = false
 
-        beam.physicsBody!.categoryBitMask = 3
+        beam.physicsBody!.categoryBitMask = BulletCategory
         beam.physicsBody!.collisionBitMask = 0
-        beam.physicsBody!.contactTestBitMask = 2
+        beam.physicsBody!.contactTestBitMask = NoteCategory
 
+        beam.physicsBody!.usesPreciseCollisionDetection = true
+        
         //change to CGPoint later; easier to read this wy for now
         beam.position.y = ship.position.y + 50
         beam.position.x = ship.position.x
 
         self.scene?.addChild(beam)
 
-        let beamShoot = SKAction.moveBy(x: 0.0, y: 1000, duration: 2.0)
-        beam.run(beamShoot)
-
-        //to maintain performance, delete beam nodes after they leave the screen.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            beam.removeFromParent()
-        }
+        beam.physicsBody!.applyImpulse(CGVector(dx: 0.0, dy: 10.0))
     }
 
     public func spawnNote(note: String, octave: Int, length: Double) {
-
         let noteWidth = 43.75
         var noteHeight : Double
-
         var x: Double = 0
 
         //always start off assuming we have a note and not a delay
@@ -127,7 +130,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 x = 0
             default:
                 isNote = false
-                print("this shouldn't happen, but it could just be a delay")
+                print("this shouldn't happen")
         }
 
         //is note checks if the note being created is not a rest
@@ -139,16 +142,17 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let newNote = SKShapeNode(rect: CGRect(x: 0, y: 0, width: Double(noteWidth), height: noteHeight))
 
             newNote.fillColor = .white
-
+            
             //center y is set to length so that the end of the collision works properly
-            newNote.physicsBody = SKPhysicsBody(rectangleOf: newNote.frame.size, center: CGPoint(x: 0, y: noteHeight))
+            newNote.physicsBody = SKPhysicsBody(rectangleOf: newNote.frame.size)
 
             newNote.physicsBody!.isDynamic = false
             newNote.physicsBody!.affectedByGravity = false
+            newNote.physicsBody!.usesPreciseCollisionDetection = true
 
-            newNote.physicsBody!.categoryBitMask = 2
+            newNote.physicsBody!.categoryBitMask = NoteCategory
             newNote.physicsBody!.collisionBitMask = 0
-            newNote.physicsBody!.contactTestBitMask = 3
+            newNote.physicsBody!.contactTestBitMask = 0x0
 
             //change to CGPoint later; easier to read this way for now
             newNote.position.x = CGFloat(x)
@@ -175,111 +179,27 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         //do I even need this?
     }
 
-    public func didEnd(_ contact: SKPhysicsContact) {
-
-        var firstBody: SKPhysicsBody
-        var secondBody: SKPhysicsBody
-
-        if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
-            firstBody = contact.bodyA
-            secondBody = contact.bodyB
-        } else {
-            firstBody = contact.bodyB
-            secondBody = contact.bodyA
+    public func handle(_ contact: SKPhysicsContact) {
+        if contact.bodyA.node?.parent == nil || contact.bodyB.node?.parent == nil {
+            return
         }
-
-        if firstBody.categoryBitMask == 2 && secondBody.categoryBitMask == 3 {
+        
+        let nodeBitmasks = [contact.bodyA.categoryBitMask, contact.bodyB.categoryBitMask]
+    
+        if nodeBitmasks.contains(NoteCategory) && nodeBitmasks.contains(BulletCategory) {
+            //bullet hit note
+        
+            if let note = contact.bodyA.node {
+                let length = (10 * round(Double(note.frame.size.height / 10.0)))
+                Sound(input: Double(note.position.x), length: length).playSound(in: self)
+            }
             contact.bodyA.node!.removeFromParent()
             contact.bodyB.node!.removeFromParent()
         }
     }
-
-    public func didBegin(_ contact: SKPhysicsContact) {
-
-        var firstBody: SKPhysicsBody
-        var secondBody: SKPhysicsBody
-
-        if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
-            firstBody = contact.bodyA
-            secondBody = contact.bodyB
-        } else {
-            firstBody = contact.bodyB
-            secondBody = contact.bodyA
-        }
-
-        if firstBody.categoryBitMask == 1 && secondBody.categoryBitMask == 2 {
-            // print("note hit ship")
-            // this is where the player would die
-            lives = lives - 1
-            
-            if (lives == 2) {
-                life3.removeFromParent()
-            }
-            if (lives == 1) {
-                life2.removeFromParent()
-            }
-            if (lives == 0) {
-                life1.removeFromParent()
-                print("he ded")
-            }
-        }
-
-        if firstBody.categoryBitMask == 2 && secondBody.categoryBitMask == 3 {
-            //the height coresponds to the note's length (see the spawnNote funciton)
-            if let bodyANode = contact.bodyA.node {
-                
-                let length = (10 * round(Double(bodyANode.frame.size.height / 10.0)))
-                
-                 //these don't need to be ranges anymore cuz we stopped using random values, fix later
-                switch bodyANode.position.x {
-                    case -350 ... -300:
-                        checkNote(length: length, noteToPlay: "C1")
-                    case -299 ... -250:
-                        checkNote(length: length, noteToPlay: "D1")
-                    case -249 ... -200:
-                        checkNote(length: length, noteToPlay: "E1")
-                    case -199 ... -150:
-                        checkNote(length: length, noteToPlay: "F1")
-                    case -149 ... -100:
-                        checkNote(length: length, noteToPlay: "G1")
-                    case -99 ... -50:
-                        checkNote(length: length, noteToPlay: "A1")
-                    case -49 ... 0:
-                        checkNote(length: length, noteToPlay: "B1")
-                    case 1...50:
-                       checkNote(length: length, noteToPlay: "C2")
-                    case 51...100:
-                        checkNote(length: length, noteToPlay: "D2")
-                    case 101...150:
-                        checkNote(length: length, noteToPlay: "E2")
-                    case 151...200:
-                        checkNote(length: length, noteToPlay: "F2")
-                    case 201...250:
-                        checkNote(length: length, noteToPlay: "G2")
-                    case 251...300:
-                        checkNote(length: length, noteToPlay: "A2")
-                    case 301...350:
-                        checkNote(length: length, noteToPlay: "B2")
-                    default:
-                        print("this shouldn't happen")
-                }
-                contact.bodyA.node!.removeFromParent()
-                contact.bodyB.node!.removeFromParent()
-            }
-        }
-    }
     
-    public func checkNote(length: Double, noteToPlay: String) {
-        if(length == 30) {
-            //quarter note
-            playSound(sound: "\(noteToPlay)_quarter.mp3")
-        } else if(length == 50) {
-            //half note
-            playSound(sound: "\(noteToPlay)_half.mp3")
-        } else {
-            //print("this is not a quarter or half note...")
-        }
-        checkCorrect(noteToCheck: noteToPlay)
+    public func didBegin(_ contact: SKPhysicsContact) {
+        contactQueue.append(contact)
     }
     
     ////////////////
@@ -295,21 +215,13 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     public func checkCorrect(noteToCheck note: String) {
         //not working b/c multiple nodes are hitting the same note
         if(note == (song.noteArray[notesPlayed]).0) {
-            print("correct")
+            //print("correct")
         } else {
-            print("wrong")
+            //print("wrong")
         }
          notesPlayed += 1
     }
-    
-    //////////////
-    //MARK:Sound//
-    //////////////
-
-    func playSound(sound: String) {
-         run(SKAction.playSoundFileNamed(sound, waitForCompletion: false))
-    }
-    
+  
     //////////////////////////////
     //MARK: Mouse Event Handlers//
     //////////////////////////////
@@ -386,7 +298,17 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     //MARK: Update Frames//
     ///////////////////////
 
+    func processContacts(forUpdate currentTime: CFTimeInterval) {
+        for contact in contactQueue {
+            handle(contact)
+            
+            if let index = contactQueue.index(of: contact) {
+                contactQueue.remove(at: index)
+            }
+        }
+    }
+    
     public override func update(_ currentTime: TimeInterval) {
-   
+        processContacts(forUpdate: currentTime)
     }
 }

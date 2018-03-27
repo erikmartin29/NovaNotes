@@ -10,9 +10,9 @@ public class Song {
    
     public func addNote(note: String, octave: Int, length: Double) {
         songArray.append((note,octave,length))
-        noteArray.append((note,octave,length))
         
-        print(noteArray)
+        noteArray.append((note,octave,length))
+ 
         //print function for testing purposes
         //print(songArray)
     }
