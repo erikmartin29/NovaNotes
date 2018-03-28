@@ -3,13 +3,11 @@ import SpriteKit
 
 struct Sound {
     private let action : SKAction
+    var noteString: String
+    
     init(input: Double, length: Double) {
-        var noteString: String = "test"
-        
-        //print statements for testing purposes
-        //print(input)
-        //print(length)
-        
+        noteString = ""
+ 
         switch input {
         case -350 ... -300:
             noteString = "C1"
@@ -42,7 +40,7 @@ struct Sound {
         default:
             print("this shouldn't happen")
         }
-        
+
         //weird bug makes length change from 30 to 20 sometimes. so just check both
         if(length == 20 || length == 30) {
             //quarter note

@@ -1,5 +1,30 @@
 //Dump code that may or may not be used in this file
 /*
+ 
+ import Foundation
+ 
+ public class Scoring {
+ 
+ //var queuedNote = Song().noteArray[0]
+ 
+ public func checkCorrect(noteString: String) {
+ //var noteChecking = noteString
+ 
+ // if(Song().noteArray[0] == queuedNote) {
+ //     print("correct note")
+ //  } else {
+ print("note was wrong")
+ 
+ // var note = song.noteArray.index(of:"\(noteString)")
+ // queuedNote = song.noteArray[note!]
+ 
+ //print("next note up is \(queuedNote)")
+ //}
+ }
+ 
+ }
+
+ 
  /*
  public func didBegin(_ contact: SKPhysicsContact) {
  

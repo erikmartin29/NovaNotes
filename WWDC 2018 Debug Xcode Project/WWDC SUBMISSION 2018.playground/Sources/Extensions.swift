@@ -6,15 +6,16 @@ import SpriteKit
 //song.addDelay(length: 1)
 //etc...
 
-//Delays Animations
+//Delays animations
 public func delay(_ delay:Double, closure:@escaping ()->()) {
     let when = DispatchTime.now() + delay
     DispatchQueue.main.asyncAfter(deadline: when, execute: closure)
 }
 
+//Spawns new note to the scene
 public func addNoteWithOptions(height: CGFloat, xPosition: CGFloat, in scene: SKScene) {
     
-    var newNote = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 43.75, height: height))
+    let newNote = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 43.75, height: height))
     
     newNote.fillColor = .white
     //center y is set to length so that the end of the collision works properly
@@ -35,7 +36,7 @@ public func addNoteWithOptions(height: CGFloat, xPosition: CGFloat, in scene: SK
     scene.addChild(newNote)
     
     //start moving down the screen
-    let move = SKAction.moveBy(x: 0, y: -1500, duration: 15)
+    let move = SKAction.moveBy(x: 0, y: -1500, duration: 15/5)
     newNote.run(move)
     
     //to maintain performance, delete note nodes after they leave the screen.
@@ -44,52 +45,11 @@ public func addNoteWithOptions(height: CGFloat, xPosition: CGFloat, in scene: SK
     }
 }
 
-/*
-public extension SKScene {
-    /*
-    public func addShapeNodeWithPhysicsBody(ofRect rect: CGRect, gravityEnabled: Bool, collisionBitMask: UInt32, categoryBitMask: UInt32, contactTestBitMask: UInt32, dynamic: Bool) {
-        
-        var node = SKShapeNode(rect: rect)
-        
-        node.fillColor = .white
-        
-        node.physicsBody = SKPhysicsBody(rectangleOf: node.frame.size)
-        node.physicsBody!.isDynamic = dynamic
-        node.physicsBody!.affectedByGravity = gravityEnabled
-        
-        node.physicsBody!.categoryBitMask = categoryBitMask
-        node.physicsBody!.collisionBitMask = collisionBitMask
-        node.physicsBody!.contactTestBitMask = contactTestBitMask
-        
-        self.addChild(node)
-    } */
-    
-    public func addNoteWithOptions(height: CGFloat, xPosition: CGFloat, in scene: SKScene) {
-        
-        var newNote = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 43.75, height: height))
-        
-        newNote.fillColor = .white
-        //center y is set to length so that the end of the collision works properly
-        newNote.physicsBody = SKPhysicsBody(rectangleOf: newNote.frame.size)
-        
-        newNote.physicsBody!.isDynamic = false
-        newNote.physicsBody!.affectedByGravity = false
-        newNote.physicsBody!.usesPreciseCollisionDetection = true
-        
-        newNote.physicsBody!.categoryBitMask = NoteCategory
-        newNote.physicsBody!.collisionBitMask = 0
-        newNote.physicsBody!.contactTestBitMask = 0x0
-        
-        self.scene.addChild(newNote)
-        
-        //start moving down the screen
-        let move = SKAction.moveBy(x: 0, y: -1500, duration: 15)
-        newNote.run(move)
-        
-        //to maintain performance, delete note nodes after they leave the screen.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
-            newNote.removeFromParent()
-        }
-    }
-} */
+struct PhysicsCategory {
+    static let None      : UInt32 = 0
+    static let Bullet    : UInt32 = 0b1       // 1
+    static let Ship      : UInt32 = 0b10      // 2
+    static let Note      : UInt32 = 0b100     // 3
+}
+
 

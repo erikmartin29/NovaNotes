@@ -5,11 +5,11 @@ public class Song {
     public var songArray = [(String, Int, Double)]()
     
     //array of all the playable notes
-    public var noteArray = [(String, Int, Double)]()
+    public var noteArray = [String]()
    
     public func addNote(note: String, octave: Int, length: Double) {
         songArray.append((note,octave,length))
-        //noteArray.append((note,octave,length))
+        //noteArray.append(note)
         //print function for testing purposes
         //print(songArray)
     }
