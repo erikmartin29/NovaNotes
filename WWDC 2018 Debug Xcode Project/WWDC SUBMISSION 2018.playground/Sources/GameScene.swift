@@ -143,7 +143,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         beam.physicsBody!.applyImpulse(CGVector(dx: 0.0, dy: 10.0))
     }
 
-    public func prepareNoteForSpawn(note: String, octave: Int, length: Double) {
+    public func prepareNoteForSpawn(note: String, length: Double) {
         
         let noteWidth = 50.00
         var noteHeight : Double
@@ -224,7 +224,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         scene.addChild(newNote)
         
         //start moving down the screen
-        let move = SKAction.moveBy(x: 0, y: -1500, duration: 15/3)
+        let move = SKAction.moveBy(x: 0, y: -1500, duration: 15/4)
         newNote.run(move)
         
         //to maintain performance, delete note nodes after they leave the screen.
@@ -338,102 +338,75 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     //this function adds all the notes to the array within the Song class
     public func setupSong() {
         // .quarter = .25, half = .5, and so on; fix later
-        
-        song.addNote(note: "E", octave: 1, length: 0.25)
-         song.addDelay(length: 0.5)
-        song.addNote(note: "D", octave: 1, length: 0.25)
-         song.addDelay(length: 0.5)
-        song.addNote(note: "C", octave: 1, length: 0.25)
-         song.addDelay(length: 0.5)
-        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addNote(note: "E", length: 0.25)
         song.addDelay(length: 0.5)
-        song.addNote(note: "E", octave: 1, length: 0.25)
+        song.addNote(note: "D", length: 0.25)
         song.addDelay(length: 0.5)
-        song.addNote(note: "E", octave: 1, length: 0.5)
+        song.addNote(note: "C", length: 0.25)
         song.addDelay(length: 0.5)
-        song.addNote(note: "E", octave: 1, length: 0.25)
+        song.addNote(note: "D", length: 0.25)
         song.addDelay(length: 0.5)
-        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addNote(note: "E", length: 0.25)
+        song.addDelay(length: 0.25)
+        song.addNote(note: "E", length: 0.25)
+        song.addDelay(length: 0.25)
+        song.addNote(note: "E", length: 0.25)
         song.addDelay(length: 0.5)
-        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addNote(note: "D", length: 0.25)
+        song.addDelay(length: 0.25)
+        song.addNote(note: "D", length: 0.25)
+        song.addDelay(length: 0.25)
+        song.addNote(note: "D", length: 0.25)
         song.addDelay(length: 0.5)
-        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addNote(note: "E", length: 0.25)
+        song.addDelay(length: 0.25)
+        song.addNote(note: "E", length: 0.25)
+        song.addDelay(length: 0.25)
+        song.addNote(note: "E", length: 0.25)
         song.addDelay(length: 0.5)
-        song.addNote(note: "E", octave: 1, length: 0.25)
+        song.addNote(note: "E", length: 0.25)
         song.addDelay(length: 0.5)
-        song.addNote(note: "E", octave: 1, length: 0.5)
+        song.addNote(note: "D", length: 0.25)
         song.addDelay(length: 0.5)
-        song.addNote(note: "E", octave: 1, length: 0.5)
+        song.addNote(note: "C", length: 0.25)
         song.addDelay(length: 0.5)
-        
-        song.addNote(note: "E", octave: 1, length: 0.25)
+        song.addNote(note: "D", length: 0.25)
         song.addDelay(length: 0.5)
-        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addNote(note: "E", length: 0.25)
+        song.addDelay(length: 0.25)
+        song.addNote(note: "E", length: 0.25)
+        song.addDelay(length: 0.25)
+        song.addNote(note: "E", length: 0.25)
+        song.addDelay(length: 0.25)
+        song.addNote(note: "E", length: 0.25)
+        song.addDelay(length: 0.25)
+        song.addNote(note: "D", length: 0.25)
+        song.addDelay(length: 0.25)
+        song.addNote(note: "D", length: 0.25)
+        song.addDelay(length: 0.25)
+        song.addNote(note: "E", length: 0.25)
+        song.addDelay(length: 0.25)
+        song.addNote(note: "D", length: 0.25)
+        song.addDelay(length: 0.25)
+        song.addNote(note: "C", length: 0.5)
         song.addDelay(length: 0.5)
-        song.addNote(note: "C", octave: 1, length: 0.25)
-        song.addDelay(length: 0.5)
-        song.addNote(note: "D", octave: 1, length: 0.25)
-        song.addDelay(length: 0.5)
-        song.addNote(note: "E", octave: 1, length: 0.25)
-        song.addDelay(length: 0.5)
-        song.addNote(note: "E", octave: 1, length: 0.5)
-        song.addDelay(length: 0.5)
-        song.addNote(note: "E", octave: 1, length: 0.25)
-        song.addDelay(length: 0.5)
-        
-        song.addNote(note: "E", octave: 1, length: 0.25)
-        song.addDelay(length: 0.5)
-        song.addNote(note: "D", octave: 1, length: 0.25)
-        song.addDelay(length: 0.5)
-        song.addNote(note: "D", octave: 1, length: 0.25)
-        song.addDelay(length: 0.5)
-        song.addNote(note: "E", octave: 1, length: 0.25)
-        song.addDelay(length: 0.5)
-        song.addNote(note: "D", octave: 1, length: 0.25)
-        song.addDelay(length: 0.5)
-        song.addNote(note: "C", octave: 1, length: 0.5)
-        song.addDelay(length: 0.5)
-        
-        /*for _ in 0...5 {
-            song.addNote(note: "A", octave: 1, length: 0.25)
-            song.addDelay(length: 0.25)
-            song.addNote(note: "C", octave: 1, length: 0.5)
-            song.addDelay(length: 0.25)
-            song.addNote(note: "D", octave: 1, length: 0.25)
-            song.addDelay(length: 0.25)
-            song.addNote(note: "E", octave: 1, length: 0.25)
-            song.addDelay(length: 0.25)
-            song.addNote(note: "F", octave: 1, length: 0.25)
-            song.addDelay(length: 0.25)
-            song.addNote(note: "A2", octave: 1, length: 0.25)
-            song.addDelay(length: 0.25)
-            song.addNote(note: "C2", octave: 1, length: 0.5)
-            song.addDelay(length: 0.25)
-            song.addNote(note: "D2", octave: 1, length: 0.25)
-            song.addDelay(length: 0.25)
-            song.addNote(note: "E2", octave: 1, length: 0.25)
-            song.addDelay(length: 0.25)
-            song.addNote(note: "F2", octave: 1, length: 0.25)
-            song.addDelay(length: 0.25)
-        }*/
     }
 
     var i = -1
-    
     //this function takes the array of notes from the Song class and prepares to spawn them into the scene
     public func generateSong() {
         i = i + 1
         if i < (song.songArray.count ) {
             if ((song.songArray[i]).0) == "N/A" {
                 //delay the next iteration by delay amount
-                delay(Double((song.songArray[i]).2)) {
+                delay(Double((song.songArray[i]).1)) {
                     self.generateSong()
                 }
             } else {
                 //spawn note
-                prepareNoteForSpawn(note: ((song.songArray[i]).0), octave: ((song.songArray[i]).1), length: ((song.songArray[i]).2))
+                prepareNoteForSpawn(note: ((song.songArray[i]).0), length: ((song.songArray[i]).1))
                 //delay the next iteration by length of not playing
-                delay(Double((song.songArray[i]).2)) {
+                delay(Double((song.songArray[i]).1)) {
                     self.generateSong()
                 }
             }

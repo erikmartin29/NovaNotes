@@ -9,11 +9,6 @@ struct Sound {
     init(input: Int, length: Double) {
         //find out what note to play.
         //the x value of the note determines the note it should play
-        
-       // print(round(input * 1))
-        
-        print(input)
-        
         switch input {
         case -350:
             noteString = "C1"

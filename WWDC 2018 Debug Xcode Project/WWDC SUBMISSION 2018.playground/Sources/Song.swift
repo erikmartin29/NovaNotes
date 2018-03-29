@@ -2,21 +2,15 @@ import Foundation
 
 public class Song {
     //all the information about each note is stored in this array.
-    public var songArray = [(String, Int, Double)]()
+    public var songArray = [(String, Double)]()
     
-    //array of all the playable notes
-    public var noteArray = [String]()
-   
-    public func addNote(note: String, octave: Int, length: Double) {
-        songArray.append((note,octave,length))
-        //noteArray.append(note)
-        //print function for testing purposes
-        //print(songArray)
+    //adds a note to the song array
+    public func addNote(note: String, length: Double) {
+        songArray.append((note,length))
     }
     
+    //adds a rest in the song array, note is assigned "N/A" which will be recognised as a delay
     public func addDelay(length: Double) {
-        songArray.append(("N/A",0,length))
-        //print function for testing purposes
-        //print(songArray)
+        songArray.append(("N/A",length))
     }
 }
