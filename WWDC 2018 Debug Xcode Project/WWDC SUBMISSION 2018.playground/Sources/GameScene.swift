@@ -169,9 +169,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             case "B":
                 x = noteWidth * -1
             case "C2":
-                x = noteWidth * 0
+                x = 0
             case "D2":
-                x = noteWidth
+                x = noteWidth * 1
             case "E2":
                 x = noteWidth * 2
             case "F2":
@@ -257,9 +257,27 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         //bullet hit a note:
         if nodeBitmasks.contains(PhysicsCategory.Note) && nodeBitmasks.contains(PhysicsCategory.Bullet) {
             //access the length of the note we hit to play the correct sound
-            if let note = contact.bodyA.node {
-                let length = Double((10 * round(note.frame.size.height / 10.0)))
-                Sound(input: Double(note.position.x), length: length).playSound(in: self)
+            
+    
+            if(contact.bodyA.categoryBitMask == PhysicsCategory.Note) {
+                if let note = contact.bodyA.node {
+                    
+
+                    let input = Int(round(note.position.x * 20) / 20)
+                   // print("BEFORE Cthrr OLLISION: \(round(note.position.x * 20) / 20)")
+                    
+                    let length = Double((10 * round(note.frame.size.height / 10.0)))
+                    Sound(input: input, length: length).playSound(in: self)
+                }
+            } else {
+                if let note = contact.bodyB.node {
+                    
+                    let input = Int(round(note.position.x * 20) / 20)
+                   // print("BEFORE COLLISION: \(round(note.position.x * 20) / 20)")
+                    
+                    let length = Double((10 * round(note.frame.size.height / 10.0)))
+                    Sound(input: input, length: length).playSound(in: self)
+                }
             }
             
             score += 1
@@ -321,29 +339,59 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     public func setupSong() {
         // .quarter = .25, half = .5, and so on; fix later
         
-        song.addNote(note: "D", octave: 1, length: 0.25)
-         song.addDelay(length: 0.5)
-        song.addNote(note: "D", octave: 1, length: 0.25)
-         song.addDelay(length: 0.5)
         song.addNote(note: "E", octave: 1, length: 0.25)
          song.addDelay(length: 0.5)
         song.addNote(note: "D", octave: 1, length: 0.25)
-        song.addDelay(length: 0.5)
-        song.addNote(note: "G", octave: 1, length: 0.25)
-        song.addDelay(length: 0.5)
-        song.addNote(note: "F", octave: 1, length: 0.5)
-        song.addDelay(length: 0.5)
+         song.addDelay(length: 0.5)
+        song.addNote(note: "C", octave: 1, length: 0.25)
+         song.addDelay(length: 0.5)
         song.addNote(note: "D", octave: 1, length: 0.25)
         song.addDelay(length: 0.5)
-        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addNote(note: "E", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "E", octave: 1, length: 0.5)
         song.addDelay(length: 0.5)
         song.addNote(note: "E", octave: 1, length: 0.25)
         song.addDelay(length: 0.5)
         song.addNote(note: "D", octave: 1, length: 0.25)
         song.addDelay(length: 0.5)
-        song.addNote(note: "A", octave: 1, length: 0.25)
+        song.addNote(note: "D", octave: 1, length: 0.25)
         song.addDelay(length: 0.5)
-        song.addNote(note: "G", octave: 1, length: 0.5)
+        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "E", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "E", octave: 1, length: 0.5)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "E", octave: 1, length: 0.5)
+        song.addDelay(length: 0.5)
+        
+        song.addNote(note: "E", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "C", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "E", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "E", octave: 1, length: 0.5)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "E", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        
+        song.addNote(note: "E", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "E", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "C", octave: 1, length: 0.5)
         song.addDelay(length: 0.5)
         
         /*for _ in 0...5 {
@@ -375,7 +423,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     //this function takes the array of notes from the Song class and prepares to spawn them into the scene
     public func generateSong() {
         i = i + 1
-        if i < (song.songArray.count - 1) {
+        if i < (song.songArray.count ) {
             if ((song.songArray[i]).0) == "N/A" {
                 //delay the next iteration by delay amount
                 delay(Double((song.songArray[i]).2)) {

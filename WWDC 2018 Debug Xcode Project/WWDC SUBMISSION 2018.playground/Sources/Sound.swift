@@ -6,37 +6,42 @@ struct Sound {
     private let action : SKAction
     var noteString: String = ""
     
-    init(input: Double, length: Double) {
+    init(input: Int, length: Double) {
         //find out what note to play.
         //the x value of the note determines the note it should play
+        
+       // print(round(input * 1))
+        
+        print(input)
+        
         switch input {
-        case -350 ..< -300:
+        case -350:
             noteString = "C1"
-        case -300 ..< -250:
+        case -300:
             noteString = "D1"
-        case -250 ..< -200:
+        case -250:
             noteString = "E1"
-        case -200 ..< -150:
+        case -200:
             noteString = "F1"
-        case -150 ..< -100:
+        case -150:
             noteString = "G1"
-        case -100 ..< -50:
+        case -100:
             noteString = "A1"
-        case -50 ..< 0:
+        case -50:
             noteString = "B1"
-        case 0 ..< 50:
+        case 0:
             noteString = "C2"
-        case 51..<100:
+        case 50:
             noteString = "D2"
-        case 100..<150:
+        case 100:
             noteString = "E2"
-        case 150..<200:
+        case 150:
             noteString = "F2"
-        case 200..<250:
+        case 200:
             noteString = "G2"
-        case 250..<300:
+        case 250:
             noteString = "A2"
-        case 300...350:
+        case 300:
             noteString = "B2"
         default:
             print("this shouldn't happen")
