@@ -6,6 +6,8 @@ import SpriteKit
 //song.addDelay(length: 1)
 //etc...
 
+//Where should I put these?
+
 //Delays animations
 public func delay(_ delay:Double, closure:@escaping ()->()) {
     let when = DispatchTime.now() + delay
@@ -25,9 +27,9 @@ public func addNoteWithOptions(height: CGFloat, xPosition: CGFloat, in scene: SK
     newNote.physicsBody!.affectedByGravity = false
     newNote.physicsBody!.usesPreciseCollisionDetection = true
     
-    newNote.physicsBody!.categoryBitMask = 0x1 << 2
-    newNote.physicsBody!.collisionBitMask = 0
-    newNote.physicsBody!.contactTestBitMask = 0x0
+    newNote.physicsBody!.categoryBitMask = PhysicsCategory.Note
+    newNote.physicsBody!.collisionBitMask = PhysicsCategory.None
+    newNote.physicsBody!.contactTestBitMask = PhysicsCategory.Ship
     
     //change to CGPoint later; easier to read this way for now
     newNote.position.x = CGFloat(xPosition)

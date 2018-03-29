@@ -5,25 +5,23 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //Nodes
     private var ship: SKSpriteNode!
-    private var noteSpawner: SKSpriteNode!
+
     private var life1: SKSpriteNode!
     private var life2: SKSpriteNode!
     private var life3: SKSpriteNode!
     private var scoreLabel : SKLabelNode!
-
+    
+    private var booster1 : SKEmitterNode!
+    private var booster2 : SKEmitterNode!
+    private var booster3 : SKEmitterNode!
+    
     //Scoring
     private var lives = 3
     private var score = 0
     
-    //Physics Global Vars
-    let BulletCategory: UInt32 = 0x1 << 0
-    let ShipCategory: UInt32 = 0x1 << 1
-    let NoteCategory: UInt32 = 0x1 << 2
-    
     //array of all contacts to be handled in the next frame
     var contactQueue = [SKPhysicsContact]()
-
-
+    
     public override func sceneDidLoad() {
         size = CGSize(width: 700, height: 1000)
     }
@@ -44,21 +42,51 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //Sets up nodes at beginning of game
     func setupNodes() {
+        //ship node
         ship = self.scene?.childNode(withName: "ship") as? SKSpriteNode
-        noteSpawner = self.scene?.childNode(withName: "noteSpawner") as? SKSpriteNode
+        ship.physicsBody = SKPhysicsBody(rectangleOf: ship.frame.size)
+        ship.physicsBody!.collisionBitMask = PhysicsCategory.None
+        ship.physicsBody!.categoryBitMask = PhysicsCategory.Ship
+        ship.physicsBody!.contactTestBitMask = PhysicsCategory.Note
+        ship.physicsBody!.affectedByGravity = false
+        //ship.physicsBody!.isDynamic = false
+        ship.zPosition = 100
         
         life1 = self.scene?.childNode(withName: "life1") as? SKSpriteNode
         life2 = self.scene?.childNode(withName: "life2") as? SKSpriteNode
         life3 = self.scene?.childNode(withName: "life3") as? SKSpriteNode
         scoreLabel = self.scene?.childNode(withName: "score") as? SKLabelNode
         
-        ship.physicsBody = SKPhysicsBody(rectangleOf: ship.frame.size)
-        ship.physicsBody!.affectedByGravity = false
-       
-        ship.physicsBody!.collisionBitMask = PhysicsCategory.None
-        ship.physicsBody!.categoryBitMask = PhysicsCategory.Ship
-        ship.physicsBody!.contactTestBitMask = PhysicsCategory.Note
+        //ship booster effects
+        let boosterPath = Bundle.main.path(forResource: "booster", ofType: "sks")!
+        booster1 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
+ 
+        booster1.position.x = ship.position.x + 50
+        booster1.position.y = ship.position.y - 30
+        booster1.particleScale = 0.1
+        booster1.targetNode = self
         
+        self.scene?.addChild(booster1)
+        
+        booster2 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
+        
+        booster2.position.x = ship.position.x - 50
+        booster2.position.y = ship.position.y - 30
+        booster2.particleScale = 0.1
+        booster2.targetNode = self
+        
+        self.scene?.addChild(booster2)
+        
+        booster3 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
+        
+        booster3.position.x = ship.position.x
+        booster3.position.y = ship.position.y - 30
+        booster3.particleScale = 0.3
+        booster3.targetNode = self
+        
+        self.scene?.addChild(booster3)
+        
+        //stars emitter
         let starsPath = Bundle.main.path(forResource: "stars", ofType: "sks")!
         let stars = NSKeyedUnarchiver.unarchiveObject(withFile: starsPath) as! SKEmitterNode
         
@@ -67,6 +95,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.scene?.addChild(stars)
         
+        //asteroid emiiter
         let asteroidsPath = Bundle.main.path(forResource: "asteroid", ofType: "sks")!
         let asteroids = NSKeyedUnarchiver.unarchiveObject(withFile: asteroidsPath) as! SKEmitterNode
         
@@ -74,29 +103,38 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroids.targetNode = self
         
         self.scene?.addChild(asteroids)
+        
     }
 
     func shootBeam() {
+        //beam is invisible, but is the node that tracks collisions
         let beam = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 15, height: 15))
+        beam.fillColor = .clear
+        beam.strokeColor = .clear
+        
+        //bulletPath is the emitter that makes the bullet look like it does
+        let bulletPath = Bundle.main.path(forResource: "bullet", ofType: "sks")!
+        let bullet = NSKeyedUnarchiver.unarchiveObject(withFile: bulletPath) as! SKEmitterNode
 
-        beam.fillColor = .red
-
+        //assign physics body properties
         beam.physicsBody = SKPhysicsBody(rectangleOf: beam.frame.size)
         beam.physicsBody!.isDynamic = true
         beam.physicsBody!.affectedByGravity = false
-
-        beam.physicsBody!.categoryBitMask = BulletCategory
+        beam.physicsBody!.categoryBitMask = PhysicsCategory.Bullet
         beam.physicsBody!.collisionBitMask = PhysicsCategory.None
-        beam.physicsBody!.contactTestBitMask = NoteCategory
-
+        beam.physicsBody!.contactTestBitMask = PhysicsCategory.Note
         beam.physicsBody!.usesPreciseCollisionDetection = true
         
         //change to CGPoint later; easier to read this wy for now
         beam.position.y = ship.position.y + 50
         beam.position.x = ship.position.x
+        bullet.position.y = 7.5
+        bullet.position.x = 7.5
 
+        beam.addChild(bullet)
         self.scene?.addChild(beam)
 
+        //shoot the bullet
         beam.physicsBody!.applyImpulse(CGVector(dx: 0.0, dy: 10.0))
     }
 
@@ -106,9 +144,10 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         var noteHeight : Double
         var x: Double = 0
 
-        //always start off assuming we have a note and not a delay
+        //always start off assuming we have a note and not a delay, this will be proved otherwise in the switch statement
         var isNote = true
         
+        //Based on the note we have, spawn it in at the correct x position
         switch note {
             case "C":
                 x = noteWidth * -8
@@ -140,6 +179,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 x = noteWidth * 6
             case "N/A":
                 x = 0
+                isNote = false
             default:
                 isNote = false
                 print("this shouldn't happen")
@@ -195,6 +235,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if nodeBitmasks.contains(PhysicsCategory.Ship) && nodeBitmasks.contains(PhysicsCategory.Note) {
             //a note hit the ship.
+            
+            print("aaa")
             
             //contact.bodyA.node!.removeFromParent()
             //contact.bodyB.node!.removeFromParent()
@@ -255,6 +297,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         let location = event.location(in:self)
         // move ship to mouse (only x values)
         ship.position.x = location.x
+        booster1.position.x = ship.position.x + 50
+        booster1.position.y = ship.position.y
+        booster2.position.x = ship.position.x - 50
+        booster2.position.y = ship.position.y
+        booster3.position.x = ship.position.x
+        booster3.position.y = ship.position.y
     }
     
     public override func mouseDown(with event: NSEvent) {
@@ -276,25 +324,25 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         // .quarter = .25, half = .5, and so on; fix later
     for _ in 0...5 {
         song.addNote(note: "A", octave: 1, length: 0.25)
-        song.addDelay(length: 1)
+        song.addDelay(length: 0.25)
         song.addNote(note: "C", octave: 1, length: 0.5)
-        song.addDelay(length: 1)
+        song.addDelay(length: 0.25)
         song.addNote(note: "D", octave: 1, length: 0.25)
-        song.addDelay(length: 1)
+        song.addDelay(length: 0.25)
         song.addNote(note: "E", octave: 1, length: 0.25)
-        song.addDelay(length: 1)
+        song.addDelay(length: 0.25)
         song.addNote(note: "F", octave: 1, length: 0.25)
-        song.addDelay(length: 1)
+        song.addDelay(length: 0.25)
         song.addNote(note: "A2", octave: 1, length: 0.25)
-        song.addDelay(length: 1)
+        song.addDelay(length: 0.25)
         song.addNote(note: "C2", octave: 1, length: 0.5)
-        song.addDelay(length: 1)
+        song.addDelay(length: 0.25)
         song.addNote(note: "D2", octave: 1, length: 0.25)
-        song.addDelay(length: 1)
+        song.addDelay(length: 0.25)
         song.addNote(note: "E2", octave: 1, length: 0.25)
-        song.addDelay(length: 1)
+        song.addDelay(length: 0.25)
         song.addNote(note: "F2", octave: 1, length: 0.25)
-        song.addDelay(length: 1)
+        song.addDelay(length: 0.25)
         }
     }
 

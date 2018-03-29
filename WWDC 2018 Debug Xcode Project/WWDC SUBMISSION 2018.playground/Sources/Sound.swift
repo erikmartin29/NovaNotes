@@ -6,6 +6,7 @@ struct Sound {
     var noteString: String
     
     init(input: Double, length: Double) {
+        
         noteString = ""
  
         switch input {
