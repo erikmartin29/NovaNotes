@@ -6,9 +6,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     //Nodes
     private var ship: SKSpriteNode!
 
-    private var life1: SKSpriteNode!
-    private var life2: SKSpriteNode!
-    private var life3: SKSpriteNode!
+    private var life1: SKShapeNode!
+    private var life2: SKShapeNode!
+    private var life3: SKShapeNode!
     private var scoreLabel : SKLabelNode!
     
     private var booster1 : SKEmitterNode!
@@ -18,9 +18,13 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     //Scoring
     private var lives = 3
     private var score = 0
-    
+
     //array of all contacts to be handled in the next frame
     var contactQueue = [SKPhysicsContact]()
+
+    ////////////////////
+    //MARK:Scene Setup//
+    ////////////////////
     
     public override func sceneDidLoad() {
         size = CGSize(width: 700, height: 1000)
@@ -31,6 +35,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         setupSong()
         generateSong()
 
+        //add all the nodes
         setupNodes()
         
         //start w/ 3 lives
@@ -43,7 +48,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     //Sets up nodes at beginning of game
     func setupNodes() {
         //ship node
-        ship = self.scene?.childNode(withName: "ship") as? SKSpriteNode
+        ship = scene?.childNode(withName: "ship") as? SKSpriteNode
         ship.physicsBody = SKPhysicsBody(rectangleOf: ship.frame.size)
         ship.physicsBody!.collisionBitMask = PhysicsCategory.None
         ship.physicsBody!.categoryBitMask = PhysicsCategory.Ship
@@ -52,10 +57,10 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         //ship.physicsBody!.isDynamic = false
         ship.zPosition = 100
         
-        life1 = self.scene?.childNode(withName: "life1") as? SKSpriteNode
-        life2 = self.scene?.childNode(withName: "life2") as? SKSpriteNode
-        life3 = self.scene?.childNode(withName: "life3") as? SKSpriteNode
-        scoreLabel = self.scene?.childNode(withName: "score") as? SKLabelNode
+        life1 = scene?.childNode(withName: "life1") as? SKShapeNode
+        life2 = scene?.childNode(withName: "life2") as? SKShapeNode
+        life3 = scene?.childNode(withName: "life3") as? SKShapeNode
+        scoreLabel = scene?.childNode(withName: "score") as? SKLabelNode
         
         //ship booster effects
         let boosterPath = Bundle.main.path(forResource: "booster", ofType: "sks")!
@@ -66,7 +71,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         booster1.particleScale = 0.1
         booster1.targetNode = self
         
-        self.scene?.addChild(booster1)
+        scene?.addChild(booster1)
         
         booster2 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
         
@@ -75,7 +80,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         booster2.particleScale = 0.1
         booster2.targetNode = self
         
-        self.scene?.addChild(booster2)
+        scene?.addChild(booster2)
         
         booster3 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
         
@@ -84,7 +89,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         booster3.particleScale = 0.3
         booster3.targetNode = self
         
-        self.scene?.addChild(booster3)
+        scene?.addChild(booster3)
         
         //stars emitter
         let starsPath = Bundle.main.path(forResource: "stars", ofType: "sks")!
@@ -93,7 +98,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         stars.position.y = 500
         stars.targetNode = self
         
-        self.scene?.addChild(stars)
+        scene?.addChild(stars)
         
         //asteroid emiiter
         let asteroidsPath = Bundle.main.path(forResource: "asteroid", ofType: "sks")!
@@ -102,7 +107,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroids.position.y = 500
         asteroids.targetNode = self
         
-        self.scene?.addChild(asteroids)
+        scene?.addChild(asteroids)
         
     }
 
@@ -132,14 +137,14 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         bullet.position.x = 7.5
 
         beam.addChild(bullet)
-        self.scene?.addChild(beam)
+        scene?.addChild(beam)
 
         //shoot the bullet
         beam.physicsBody!.applyImpulse(CGVector(dx: 0.0, dy: 10.0))
     }
 
-    public func spawnNote(note: String, octave: Int, length: Double) {
-       
+    public func prepareNoteForSpawn(note: String, octave: Int, length: Double) {
+        
         let noteWidth = 43.75
         var noteHeight : Double
         var x: Double = 0
@@ -194,6 +199,39 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             addNoteWithOptions(height: CGFloat(noteHeight), xPosition: CGFloat(x), in: self)
        }
     }
+    
+    //Spawns new note to the scene
+    public func addNoteWithOptions(height: CGFloat, xPosition: CGFloat, in scene: SKScene) {
+        
+        let newNote = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 43.75, height: height))
+        
+        newNote.fillColor = .white
+        //center y is set to length so that the end of the collision works properly
+        newNote.physicsBody = SKPhysicsBody(rectangleOf: newNote.frame.size)
+        
+        newNote.physicsBody!.isDynamic = false
+        newNote.physicsBody!.affectedByGravity = false
+        newNote.physicsBody!.usesPreciseCollisionDetection = true
+        
+        newNote.physicsBody!.categoryBitMask = PhysicsCategory.Note
+        newNote.physicsBody!.collisionBitMask = PhysicsCategory.None
+        newNote.physicsBody!.contactTestBitMask = PhysicsCategory.Ship
+        
+        //change to CGPoint later; easier to read this way for now
+        newNote.position.x = CGFloat(xPosition)
+        newNote.position.y = 500
+        
+        scene.addChild(newNote)
+        
+        //start moving down the screen
+        let move = SKAction.moveBy(x: 0, y: -1500, duration: 15/5)
+        newNote.run(move)
+        
+        //to maintain performance, delete note nodes after they leave the screen.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
+            newNote.removeFromParent()
+        }
+    }
 
     /////////////////////////////
     //MARK:Physics and Contacts//
@@ -215,10 +253,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         let nodeBitmasks = [contact.bodyA.categoryBitMask, contact.bodyB.categoryBitMask]
-    
+        
+        //bullet hit a note:
         if nodeBitmasks.contains(PhysicsCategory.Note) && nodeBitmasks.contains(PhysicsCategory.Bullet) {
-            //bullet hit a note
-           
             //access the length of the note we hit to play the correct sound
             if let note = contact.bodyA.node {
                 let length = Double((10 * round(note.frame.size.height / 10.0)))
@@ -227,68 +264,32 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             
             score += 1
             scoreLabel.text = "\(score)"
-            print(score)
-            
+          
             contact.bodyA.node!.removeFromParent()
             contact.bodyB.node!.removeFromParent()
         }
         
+        //a note hit the ship:
         if nodeBitmasks.contains(PhysicsCategory.Ship) && nodeBitmasks.contains(PhysicsCategory.Note) {
-            //a note hit the ship.
-            
-            print("aaa")
-            
-            //contact.bodyA.node!.removeFromParent()
-            //contact.bodyB.node!.removeFromParent()
-            
-            if(contact.bodyA.categoryBitMask == PhysicsCategory.Note) {
-                  contact.bodyA.node!.removeFromParent()
-            } else {
-                  contact.bodyB.node!.removeFromParent()
-            }
-            
-        //handle lives
+            //adjust lives
             if (lives > 1) {
                 lives = lives - 1
-                print(lives)
                 if lives == 2 {
-                   //life3.removeFromParent()
+                   life3.removeFromParent()
                 } else if lives == 1 {
-                   //life2.removeFromParent()
+                   life2.removeFromParent()
                 }
             } else {
-               // life1.removeFromParent()
+                life1.removeFromParent()
                 print("he DEAD")
             }
         }
     }
-        
     
     public func didBegin(_ contact: SKPhysicsContact) {
         contactQueue.append(contact)
     }
-    
-    ////////////////
-    //MARK:Scoring//
-    ////////////////
-    
-    //FIX THIS
-    
-   // var notesPlayed = 0
-   // var nextNote : String!
-   // var targetNote : String!
-    
-    /*
-    public func checkCorrect(noteToCheck note: String) {
-        //not working b/c multiple nodes are hitting the same note
-        if(note == (song.noteArray[notesPlayed]).0) {
-            //print("correct")
-        } else {
-            //print("wrong")
-        }
-         notesPlayed += 1
-    } */
-  
+
     //////////////////////////////
     //MARK: Mouse Event Handlers//
     //////////////////////////////
@@ -314,51 +315,50 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     ////////////////////
 
     let song = Song()
-    var i = -1
     //var songBPM = 120
 
+    //this function adds all the notes to the array within the Song class
     public func setupSong() {
-        //change later, add some basic song presets to choose from.
-        //get rid of this for loop later. right not it's just a test
-        
         // .quarter = .25, half = .5, and so on; fix later
-    for _ in 0...5 {
-        song.addNote(note: "A", octave: 1, length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "C", octave: 1, length: 0.5)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D", octave: 1, length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E", octave: 1, length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "F", octave: 1, length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "A2", octave: 1, length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "C2", octave: 1, length: 0.5)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D2", octave: 1, length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E2", octave: 1, length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "F2", octave: 1, length: 0.25)
-        song.addDelay(length: 0.25)
+        for _ in 0...5 {
+            song.addNote(note: "A", octave: 1, length: 0.25)
+            song.addDelay(length: 0.25)
+            song.addNote(note: "C", octave: 1, length: 0.5)
+            song.addDelay(length: 0.25)
+            song.addNote(note: "D", octave: 1, length: 0.25)
+            song.addDelay(length: 0.25)
+            song.addNote(note: "E", octave: 1, length: 0.25)
+            song.addDelay(length: 0.25)
+            song.addNote(note: "F", octave: 1, length: 0.25)
+            song.addDelay(length: 0.25)
+            song.addNote(note: "A2", octave: 1, length: 0.25)
+            song.addDelay(length: 0.25)
+            song.addNote(note: "C2", octave: 1, length: 0.5)
+            song.addDelay(length: 0.25)
+            song.addNote(note: "D2", octave: 1, length: 0.25)
+            song.addDelay(length: 0.25)
+            song.addNote(note: "E2", octave: 1, length: 0.25)
+            song.addDelay(length: 0.25)
+            song.addNote(note: "F2", octave: 1, length: 0.25)
+            song.addDelay(length: 0.25)
         }
     }
 
+    var i = -1
+    
+    //this function takes the array of notes from the Song class and prepares to spawn them into the scene
     public func generateSong() {
-        //because of the functionailty of my delay function, a for loop would not work properly
         i = i + 1
         if i < (song.songArray.count - 1) {
             if ((song.songArray[i]).0) == "N/A" {
-                //delay here
+                //delay the next iteration by delay amount
                 delay(Double((song.songArray[i]).2)) {
                     self.generateSong()
                 }
             } else {
                 //spawn note
-                spawnNote(note: ((song.songArray[i]).0), octave: ((song.songArray[i]).1), length: ((song.songArray[i]).2))
-                //delay
+                prepareNoteForSpawn(note: ((song.songArray[i]).0), octave: ((song.songArray[i]).1), length: ((song.songArray[i]).2))
+                //delay the next iteration by length of not playing
                 delay(Double((song.songArray[i]).2)) {
                     self.generateSong()
                 }

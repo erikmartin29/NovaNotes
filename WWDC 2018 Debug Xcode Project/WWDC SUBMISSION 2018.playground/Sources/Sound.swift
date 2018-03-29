@@ -1,14 +1,14 @@
 import Foundation
 import SpriteKit
 
+//handles the playing of sounds
 struct Sound {
     private let action : SKAction
-    var noteString: String
+    var noteString: String = ""
     
     init(input: Double, length: Double) {
-        
-        noteString = ""
- 
+        //find out what note to play.
+        //the x value of the note determines the note it should play
         switch input {
         case -350 ... -300:
             noteString = "C1"
@@ -43,18 +43,19 @@ struct Sound {
         }
 
         //weird bug makes length change from 30 to 20 sometimes. so just check both
-        if(length == 20 || length == 30) {
+        if(length == 20.0 || length == 30.0) {
             //quarter note
             action = .playSoundFileNamed("\(noteString)_quarter.mp3", waitForCompletion: false)
-        } else if(length == 50) {
+        } else if(length == 50.0) {
             //half note
             action = .playSoundFileNamed("\(noteString)_quarter.mp3", waitForCompletion: false)
         } else {
-            //silence is used just as a placeholder for if the note doesn't meet any of the prior length requirements, although this shouldn't happen often
+            //silence is used just as a placeholder for if the note doesn't meet any of the prior length requirements
             action = .playSoundFileNamed("silence.mp3", waitForCompletion: false)
         }
     }
     
+    //play the sound
     func playSound(in scene : SKScene) {
         scene.run(action)
     }
