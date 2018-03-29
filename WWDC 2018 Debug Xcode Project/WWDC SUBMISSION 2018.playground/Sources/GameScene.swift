@@ -145,7 +145,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
 
     public func prepareNoteForSpawn(note: String, octave: Int, length: Double) {
         
-        let noteWidth = 43.75
+        let noteWidth = 50.00
         var noteHeight : Double
         var x: Double = 0
 
@@ -155,21 +155,21 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         //Based on the note we have, spawn it in at the correct x position
         switch note {
             case "C":
-                x = noteWidth * -8
-            case "D":
                 x = noteWidth * -7
-            case "E":
+            case "D":
                 x = noteWidth * -6
-            case "F":
+            case "E":
                 x = noteWidth * -5
-            case "G":
+            case "F":
                 x = noteWidth * -4
-            case "A":
+            case "G":
                 x = noteWidth * -3
-            case "B":
+            case "A":
                 x = noteWidth * -2
-            case "C2":
+            case "B":
                 x = noteWidth * -1
+            case "C2":
+                x = noteWidth * 0
             case "D2":
                 x = noteWidth
             case "E2":
@@ -224,7 +224,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         scene.addChild(newNote)
         
         //start moving down the screen
-        let move = SKAction.moveBy(x: 0, y: -1500, duration: 15/5)
+        let move = SKAction.moveBy(x: 0, y: -1500, duration: 15/3)
         newNote.run(move)
         
         //to maintain performance, delete note nodes after they leave the screen.
@@ -320,7 +320,33 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     //this function adds all the notes to the array within the Song class
     public func setupSong() {
         // .quarter = .25, half = .5, and so on; fix later
-        for _ in 0...5 {
+        
+        song.addNote(note: "D", octave: 1, length: 0.25)
+         song.addDelay(length: 0.5)
+        song.addNote(note: "D", octave: 1, length: 0.25)
+         song.addDelay(length: 0.5)
+        song.addNote(note: "E", octave: 1, length: 0.25)
+         song.addDelay(length: 0.5)
+        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "G", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "F", octave: 1, length: 0.5)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "E", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "D", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "A", octave: 1, length: 0.25)
+        song.addDelay(length: 0.5)
+        song.addNote(note: "G", octave: 1, length: 0.5)
+        song.addDelay(length: 0.5)
+        
+        /*for _ in 0...5 {
             song.addNote(note: "A", octave: 1, length: 0.25)
             song.addDelay(length: 0.25)
             song.addNote(note: "C", octave: 1, length: 0.5)
@@ -341,7 +367,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             song.addDelay(length: 0.25)
             song.addNote(note: "F2", octave: 1, length: 0.25)
             song.addDelay(length: 0.25)
-        }
+        }*/
     }
 
     var i = -1

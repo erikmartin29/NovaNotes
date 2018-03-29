@@ -10,33 +10,33 @@ struct Sound {
         //find out what note to play.
         //the x value of the note determines the note it should play
         switch input {
-        case -350 ... -300:
+        case -350 ..< -300:
             noteString = "C1"
-        case -299 ... -250:
+        case -300 ..< -250:
             noteString = "D1"
-        case -249 ... -200:
+        case -250 ..< -200:
             noteString = "E1"
-        case -199 ... -150:
+        case -200 ..< -150:
             noteString = "F1"
-        case -149 ... -100:
+        case -150 ..< -100:
             noteString = "G1"
-        case -99 ... -50:
+        case -100 ..< -50:
             noteString = "A1"
-        case -49 ... 0:
+        case -50 ..< 0:
             noteString = "B1"
-        case 1...50:
+        case 0 ..< 50:
             noteString = "C2"
-        case 51...100:
+        case 51..<100:
             noteString = "D2"
-        case 101...150:
+        case 100..<150:
             noteString = "E2"
-        case 151...200:
+        case 150..<200:
             noteString = "F2"
-        case 201...250:
+        case 200..<250:
             noteString = "G2"
-        case 251...300:
+        case 250..<300:
             noteString = "A2"
-        case 301...350:
+        case 300...350:
             noteString = "B2"
         default:
             print("this shouldn't happen")
