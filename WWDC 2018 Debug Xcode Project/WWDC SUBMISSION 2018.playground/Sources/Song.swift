@@ -12,5 +12,5 @@ public class Song {
     //adds a rest in the song array, note is assigned "N/A" which will be recognised as a delay
     public func addDelay(length: Double) {
         songArray.append(("N/A",length))
-    }
+    }  
 }

@@ -25,6 +25,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     //Scoring
     private var lives = 3
     private var score = 0
+    
+    private var running = false
 
     //array of all contacts to be handled in the next frame
     var contactQueue = [SKPhysicsContact]()
@@ -154,6 +156,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.life3.run(moveLives)
             self.scoreLabel.run(moveLives)
             self.scoreTextLabel.run(moveLives)
+           
+            //after these animations complete, start the game
+            delay(2){
+                self.running = true
+            }
         }
     }
     
@@ -201,11 +208,13 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         bullet.position.y = 7.5
         bullet.position.x = 7.5
 
-        beam.addChild(bullet)
-        scene?.addChild(beam)
+        if running {
+            beam.addChild(bullet)
+            scene?.addChild(beam)
 
-        //shoot the bullet
-        beam.physicsBody!.applyImpulse(CGVector(dx: 0.0, dy: 10.0))
+            //shoot the bullet
+            beam.physicsBody!.applyImpulse(CGVector(dx: 0.0, dy: 10.0))
+        }
     }
 
     public func prepareNoteForSpawn(note: String, length: Double) {
@@ -270,9 +279,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         let newNote = SKShapeNode(rect: CGRect(x: 0, y: height/2, width: 43.75, height: height))
         
         newNote.fillColor = .white
+        newNote.name = "note"
+        
         //center y is set to length so that the end of the collision works properly
         newNote.physicsBody = SKPhysicsBody(rectangleOf: newNote.frame.size)
         
+        //set other physics properties
         newNote.physicsBody!.isDynamic = false
         newNote.physicsBody!.affectedByGravity = false
         newNote.physicsBody!.usesPreciseCollisionDetection = true
@@ -291,10 +303,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         let move = SKAction.moveBy(x: 0, y: -1500, duration: 2)
         newNote.run(move)
         
+        
         //to maintain performance, delete note nodes after they leave the screen.
         delay(2) {
             newNote.removeFromParent()
         }
+        
     }
 
     /////////////////////////////
@@ -350,24 +364,73 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         
         //a note hit the ship:
         if nodeBitmasks.contains(PhysicsCategory.Ship) && nodeBitmasks.contains(PhysicsCategory.Note) {
+            
+            //ANIMATE LATER??
+            
+            //make sure we delete the note and not the ship
+            if(contact.bodyA.categoryBitMask == PhysicsCategory.Note) {
+               contact.bodyA.node!.removeFromParent()
+            } else {
+               contact.bodyB.node!.removeFromParent()
+            }
+            
             //adjust lives
             if (lives > 1) {
                 //lost life sound effect
                 lives = lives - 1
                 if lives == 2 {
+                    //animate?
                     //lost life sound effect
                    life3.removeFromParent()
                 } else if lives == 1 {
                     //lost life sound effect
+                    //animate?
                    life2.removeFromParent()
                 }
             } else {
                 life1.removeFromParent()
                 //death screen
-                //death sound effect
+                deathScreen()
+                
                 print("he DEAD")
             }
         }
+    }
+    
+    func deathScreen() {
+        running = false
+        //death sound effect
+        
+        //death animation
+        ship.removeFromParent()
+        scoreTextLabel.removeFromParent()
+        scoreLabel.removeFromParent()
+        
+        booster1.removeFromParent()
+        booster2.removeFromParent()
+        booster3.removeFromParent()
+        
+        // Removing existing notes
+        for child in self.children {
+            if child.name == "note" {
+                child.removeFromParent()
+            }
+        }
+        
+        let deathLabel = SKLabelNode(text: "You Died!")
+        deathLabel.fontName = "Helvetica Neue Light"
+        deathLabel.fontSize = 65
+        deathLabel.fontColor = .white
+        deathLabel.position = CGPoint(x: 0, y : 0)
+        
+        let deathLabel2 = SKLabelNode(text: "Re-run to try again.")
+        deathLabel2.fontName = "Helvetica Neue Light"
+        deathLabel2.fontSize = 30
+        deathLabel2.fontColor = .white
+        deathLabel2.position = CGPoint(x: 0, y : -40)
+        
+        scene?.addChild(deathLabel)
+        scene?.addChild(deathLabel2)
     }
     
     //when we detect a collision, add it to our queue to be handled in the next frame.
@@ -381,15 +444,19 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
  
     override public func mouseMoved(with event: NSEvent) {
         let location = event.location(in:self)
-        // move ship to mouse (only x values)
-        ship.position.x = location.x
-        //move the boosters along with the ship (keeping thier relative posistions)
-        booster1.position.x = ship.position.x + 50
-        booster1.position.y = ship.position.y
-        booster2.position.x = ship.position.x - 50
-        booster2.position.y = ship.position.y
-        booster3.position.x = ship.position.x
-        booster3.position.y = ship.position.y
+        
+        //only move the ship if the game is still running
+        if running {
+            // move ship to mouse (only x values)
+            ship.position.x = location.x
+            //move the boosters along with the ship (keeping thier relative posistions)
+            booster1.position.x = ship.position.x + 50
+            booster1.position.y = ship.position.y
+            booster2.position.x = ship.position.x - 50
+            booster2.position.y = ship.position.y
+            booster3.position.x = ship.position.x
+            booster3.position.y = ship.position.y
+        }
     }
     
     public override func mouseDown(with event: NSEvent) {
@@ -518,19 +585,22 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     var i = -1
     //this function takes the array of notes from the Song class and prepares to spawn them into the scene
     public func generateSong() {
-        i = i + 1
-        if i < (song.songArray.count ) {
-            if ((song.songArray[i]).0) == "N/A" {
-                //delay the next iteration by delay amount
-                delay(Double((song.songArray[i]).1)) {
-                    self.generateSong()
-                }
-            } else {
-                //spawn note
-                prepareNoteForSpawn(note: ((song.songArray[i]).0), length: ((song.songArray[i]).1))
-                //delay the next iteration by length of not playing
-                delay(Double((song.songArray[i]).1)/2) {
-                    self.generateSong()
+        //only generate the song if the game is not over
+        if running {
+            i = i + 1
+            if i < (song.songArray.count ) {
+                if ((song.songArray[i]).0) == "N/A" {
+                    //delay the next iteration by delay amount
+                    delay(Double((song.songArray[i]).1)) {
+                        self.generateSong()
+                    }
+                } else {
+                    //spawn note
+                    prepareNoteForSpawn(note: ((song.songArray[i]).0), length: ((song.songArray[i]).1))
+                    //delay the next iteration by length of not playing
+                    delay(Double((song.songArray[i]).1)/2) {
+                        self.generateSong()
+                    }
                 }
             }
         }
