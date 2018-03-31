@@ -1,7 +1,7 @@
 import Foundation
 import SpriteKit
 
-//delays animations
+//delays animations, this makes the code musch easier to read
 public func delay(_ delay:Double, closure:@escaping ()->()) {
     let when = DispatchTime.now() + delay
     DispatchQueue.main.asyncAfter(deadline: when, execute: closure)
@@ -15,10 +15,6 @@ struct PhysicsCategory {
     static let Note      : UInt32 = 0b100     // 3
 }
 
-struct NoteLength  {
-    static let quarter   : Double = 0.25
-    static let half      : Double = 0.25
-    //add more later?
-}
-
-
+//defines a word for each not length so it is easier to read
+public var quarter = 0.25
+public var half = 0.5

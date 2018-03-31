@@ -4,7 +4,7 @@ import Cocoa
 
 let scene = GameScene(fileNamed: "GameScene")
 
-let frame = CGRect(x: 0, y: 0, width: 1920, height: 1080)
+let frame = CGRect(x: 0, y: 0, width: 700, height: 1000)
 let view = SKView(frame: frame)
 
 //add tracker to detect mouse location

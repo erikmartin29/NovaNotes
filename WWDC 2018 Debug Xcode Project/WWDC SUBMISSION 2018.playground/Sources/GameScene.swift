@@ -3,7 +3,7 @@ import SpriteKit
 
 public class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    //Nodes
+    //nodes
     private var ship: SKSpriteNode!
 
     private var life1: SKShapeNode!
@@ -15,13 +15,17 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var booster2 : SKEmitterNode!
     private var booster3 : SKEmitterNode!
     
+    private var levelLabel : SKLabelNode!
+    private var songLabel : SKLabelNode!
+    private var scoreTextLabel : SKLabelNode!
+    
     //Scoring
     private var lives = 3
     private var score = 0
 
     //array of all contacts to be handled in the next frame
     var contactQueue = [SKPhysicsContact]()
-
+    
     ////////////////////
     //MARK:Scene Setup//
     ////////////////////
@@ -31,12 +35,17 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     public override func didMove(to view: SKView) {
+        
+        intro()
+        
+        delay(6){
         //setup & start generating the song
-        setupSong()
-        generateSong()
+        self.setupSong()
+        self.generateSong()
 
         //add all the nodes
-        setupNodes()
+        //self.setupNodes()
+        }
         
         //start w/ 3 lives
         lives = 3
@@ -46,51 +55,22 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
     }
     
-    //Sets up nodes at beginning of game
-    func setupNodes() {
+    func intro() {
         //ship node
         ship = scene?.childNode(withName: "ship") as? SKSpriteNode
-        ship.physicsBody = SKPhysicsBody(rectangleOf: ship.frame.size)
-        ship.physicsBody!.collisionBitMask = PhysicsCategory.None
-        ship.physicsBody!.categoryBitMask = PhysicsCategory.Ship
-        ship.physicsBody!.contactTestBitMask = PhysicsCategory.Note
-        ship.physicsBody!.affectedByGravity = false
-        //ship.physicsBody!.isDynamic = false
-        ship.zPosition = 100
+        ship.position.y = -570
         
         life1 = scene?.childNode(withName: "life1") as? SKShapeNode
         life2 = scene?.childNode(withName: "life2") as? SKShapeNode
         life3 = scene?.childNode(withName: "life3") as? SKShapeNode
         scoreLabel = scene?.childNode(withName: "score") as? SKLabelNode
+        scoreTextLabel = scene?.childNode(withName: "scoreTextLabel") as? SKLabelNode
         
-        //ship booster effects
-        let boosterPath = Bundle.main.path(forResource: "booster", ofType: "sks")!
-        booster1 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
- 
-        booster1.position.x = ship.position.x + 50
-        booster1.position.y = ship.position.y - 30
-        booster1.particleScale = 0.1
-        booster1.targetNode = self
-        
-        scene?.addChild(booster1)
-        
-        booster2 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
-        
-        booster2.position.x = ship.position.x - 50
-        booster2.position.y = ship.position.y - 30
-        booster2.particleScale = 0.1
-        booster2.targetNode = self
-        
-        scene?.addChild(booster2)
-        
-        booster3 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
-        
-        booster3.position.x = ship.position.x
-        booster3.position.y = ship.position.y - 30
-        booster3.particleScale = 0.3
-        booster3.targetNode = self
-        
-        scene?.addChild(booster3)
+        life1.position.y = -550
+        life2.position.y = -550
+        life3.position.y = -550
+        scoreLabel.position.y = -575
+        scoreTextLabel.position.y = -575
         
         //stars emitter
         let starsPath = Bundle.main.path(forResource: "stars", ofType: "sks")!
@@ -101,6 +81,73 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         
         scene?.addChild(stars)
         
+        levelLabel = scene?.childNode(withName: "levelLabel") as? SKLabelNode
+        songLabel = scene?.childNode(withName: "songLabel") as? SKLabelNode
+        
+        levelLabel.position.y = -500
+        songLabel.position.y = -540
+        
+        //ship booster effects
+        let boosterPath = Bundle.main.path(forResource: "booster", ofType: "sks")!
+        booster1 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
+        
+        booster1.position.x = ship.position.x + 50
+        booster1.position.y = ship.position.y
+        booster1.particleScale = 0.1
+        booster1.targetNode = self
+        
+        scene?.addChild(booster1)
+        
+        booster2 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
+        
+        booster2.position.x = ship.position.x - 50
+        booster2.position.y = ship.position.y
+        booster2.particleScale = 0.1
+        booster2.targetNode = self
+        
+        scene?.addChild(booster2)
+        
+        booster3 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
+        
+        booster3.position.x = ship.position.x
+        booster3.position.y = ship.position.y
+        booster3.particleScale = 0.3
+        booster3.targetNode = self
+        
+        scene?.addChild(booster3)
+        
+        //move the label
+        let move = SKAction.moveBy(x: 0, y: 1060, duration: 4)
+        levelLabel.run(move)
+        songLabel.run(move)
+        
+        delay(2){
+            let moveShip = SKAction.moveBy(x: 0, y: 230, duration: 2)
+            self.ship.run(moveShip)
+            self.booster1.run(moveShip)
+            self.booster2.run(moveShip)
+            self.booster3.run(moveShip)
+            //self.setupNodes()
+            
+            let moveLives = SKAction.moveBy(x: 0, y: 100, duration: 2)
+            self.life1.run(moveLives)
+            self.life2.run(moveLives)
+            self.life3.run(moveLives)
+            self.scoreLabel.run(moveLives)
+            self.scoreTextLabel.run(moveLives)
+        }
+    }
+    
+    //Sets up nodes at beginning of game
+    func setupNodes() {
+        //ship node physics body
+        ship.physicsBody = SKPhysicsBody(rectangleOf: ship.frame.size)
+        ship.physicsBody!.collisionBitMask = PhysicsCategory.None
+        ship.physicsBody!.categoryBitMask = PhysicsCategory.Ship
+        ship.physicsBody!.contactTestBitMask = PhysicsCategory.Note
+        ship.physicsBody!.affectedByGravity = false
+        ship.zPosition = 100
+        
         //asteroid emiiter
         let asteroidsPath = Bundle.main.path(forResource: "asteroid", ofType: "sks")!
         let asteroids = NSKeyedUnarchiver.unarchiveObject(withFile: asteroidsPath) as! SKEmitterNode
@@ -109,8 +156,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroids.targetNode = self
         
         scene?.addChild(asteroids)
-        
     }
+    
+    ///////////////////////
+    //MARK:Spawning Nodes//
+    ///////////////////////
 
     func shootBeam() {
         //beam is invisible, but is the node that tracks collisions
@@ -131,7 +181,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         beam.physicsBody!.contactTestBitMask = PhysicsCategory.Note
         beam.physicsBody!.usesPreciseCollisionDetection = true
         
-        //change to CGPoint later; easier to read this wy for now
+        //change to CGPoint later; easier to read this way for now
         beam.position.y = ship.position.y + 50
         beam.position.x = ship.position.x
         bullet.position.y = 7.5
@@ -145,12 +195,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     public func prepareNoteForSpawn(note: String, length: Double) {
-        
         let noteWidth = 50.00
-        var noteHeight : Double
+       // var noteHeight : Double
         var x: Double = 0
 
-        //always start off assuming we have a note and not a delay, this will be proved otherwise in the switch statement
+        //always start off assuming we have a note and not a delay, may be proved otherwise in the switch statement
         var isNote = true
         
         //Based on the note we have, spawn it in at the correct x position
@@ -193,8 +242,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
 
         //is note checks if the note being created is not a rest
         if(isNote) {
-            //convert length (in beats) into both height of note (1 beat is 100px in length)
-            noteHeight = length * Double(100)
+            //convert length (in beats) into height of note (1 beat is 100px in length)
+            let noteHeight = length * Double(100)
             
             //add the note to the scene
             addNoteWithOptions(height: CGFloat(noteHeight), xPosition: CGFloat(x), in: self)
@@ -204,7 +253,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     //Spawns new note to the scene
     public func addNoteWithOptions(height: CGFloat, xPosition: CGFloat, in scene: SKScene) {
         
-        let newNote = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 43.75, height: height))
+        let newNote = SKShapeNode(rect: CGRect(x: 0, y: height/2, width: 43.75, height: height))
         
         newNote.fillColor = .white
         //center y is set to length so that the end of the collision works properly
@@ -229,7 +278,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         newNote.run(move)
         
         //to maintain performance, delete note nodes after they leave the screen.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        delay(2) {
             newNote.removeFromParent()
         }
     }
@@ -289,14 +338,19 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         if nodeBitmasks.contains(PhysicsCategory.Ship) && nodeBitmasks.contains(PhysicsCategory.Note) {
             //adjust lives
             if (lives > 1) {
+                //lost life sound effect
                 lives = lives - 1
                 if lives == 2 {
+                    //lost life sound effect
                    life3.removeFromParent()
                 } else if lives == 1 {
+                    //lost life sound effect
                    life2.removeFromParent()
                 }
             } else {
                 life1.removeFromParent()
+                //death screen
+                //death sound effect
                 print("he DEAD")
             }
         }
@@ -339,112 +393,112 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     public func setupSong() {
         //Mary Had a Little Lamb:
         //low octave
-        song.addNote(note: "E", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "C", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "C", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "C", length: 0.5)
-        song.addDelay(length: 0.25)
+        song.addNote(note: "E", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "C", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "C", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "C", length: half)
+        song.addDelay(length: half)
         
         //high octave
-        song.addNote(note: "E2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "C2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "C2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "E2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "D2", length: 0.25)
-        song.addDelay(length: 0.25)
-        song.addNote(note: "C2", length: 0.5)
-        song.addDelay(length: 0.25)
+        song.addNote(note: "E2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "C2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "C2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "E2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "D2", length: quarter)
+        song.addDelay(length: half)
+        song.addNote(note: "C2", length: half)
+        song.addDelay(length: half)
     }
 
     var i = -1
@@ -461,7 +515,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 //spawn note
                 prepareNoteForSpawn(note: ((song.songArray[i]).0), length: ((song.songArray[i]).1))
                 //delay the next iteration by length of not playing
-                delay(Double((song.songArray[i]).1)) {
+                delay(Double((song.songArray[i]).1)/2) {
                     self.generateSong()
                 }
             }
