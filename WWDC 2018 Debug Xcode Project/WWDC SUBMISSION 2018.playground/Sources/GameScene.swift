@@ -11,6 +11,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var life3: SKShapeNode!
     private var scoreLabel : SKLabelNode!
     
+    private var stars : SKEmitterNode!
+    private var asteroids : SKEmitterNode!
+    
     private var booster1 : SKEmitterNode!
     private var booster2 : SKEmitterNode!
     private var booster3 : SKEmitterNode!
@@ -35,16 +38,13 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     public override func didMove(to view: SKView) {
-        
+        setupNodes()
         intro()
         
         delay(6){
         //setup & start generating the song
         self.setupSong()
         self.generateSong()
-
-        //add all the nodes
-        //self.setupNodes()
         }
         
         //start w/ 3 lives
@@ -55,11 +55,21 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
     }
     
-    func intro() {
+    //sets up all initial properties of the nodes
+    func setupNodes() {
         //ship node
         ship = scene?.childNode(withName: "ship") as? SKSpriteNode
         ship.position.y = -570
         
+        //ship node physics body
+        ship.physicsBody = SKPhysicsBody(rectangleOf: ship.frame.size)
+        ship.physicsBody!.collisionBitMask = PhysicsCategory.None
+        ship.physicsBody!.categoryBitMask = PhysicsCategory.Ship
+        ship.physicsBody!.contactTestBitMask = PhysicsCategory.Note
+        ship.physicsBody!.affectedByGravity = false
+        ship.zPosition = 100
+        
+        //hearts
         life1 = scene?.childNode(withName: "life1") as? SKShapeNode
         life2 = scene?.childNode(withName: "life2") as? SKShapeNode
         life3 = scene?.childNode(withName: "life3") as? SKShapeNode
@@ -74,13 +84,19 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         
         //stars emitter
         let starsPath = Bundle.main.path(forResource: "stars", ofType: "sks")!
-        let stars = NSKeyedUnarchiver.unarchiveObject(withFile: starsPath) as! SKEmitterNode
+        stars = NSKeyedUnarchiver.unarchiveObject(withFile: starsPath) as! SKEmitterNode
         
         stars.position.y = 500
         stars.targetNode = self
         
-        scene?.addChild(stars)
+        //asteroid emiiter
+        let asteroidsPath = Bundle.main.path(forResource: "asteroid", ofType: "sks")!
+        asteroids = NSKeyedUnarchiver.unarchiveObject(withFile: asteroidsPath) as! SKEmitterNode
         
+        asteroids.position.y = 500
+        asteroids.targetNode = self
+        
+        //level labels
         levelLabel = scene?.childNode(withName: "levelLabel") as? SKLabelNode
         songLabel = scene?.childNode(withName: "songLabel") as? SKLabelNode
         
@@ -96,8 +112,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         booster1.particleScale = 0.1
         booster1.targetNode = self
         
-        scene?.addChild(booster1)
-        
         booster2 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
         
         booster2.position.x = ship.position.x - 50
@@ -105,29 +119,34 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         booster2.particleScale = 0.1
         booster2.targetNode = self
         
-        scene?.addChild(booster2)
-        
         booster3 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
         
         booster3.position.x = ship.position.x
         booster3.position.y = ship.position.y
         booster3.particleScale = 0.3
         booster3.targetNode = self
+    }
+    
+    //intro sequence when game starts
+    func intro() {
         
+        //add the emitters to the view
+        scene?.addChild(stars)
+        scene?.addChild(asteroids)
+        scene?.addChild(booster1)
+        scene?.addChild(booster2)
         scene?.addChild(booster3)
         
-        //move the label
-        let move = SKAction.moveBy(x: 0, y: 1060, duration: 4)
-        levelLabel.run(move)
-        songLabel.run(move)
+        //play the level animation
+        levelAnimation(level:"1", song:"Mary Had A Little Lamb")
         
         delay(2){
+            //ship flys into screen
             let moveShip = SKAction.moveBy(x: 0, y: 230, duration: 2)
             self.ship.run(moveShip)
             self.booster1.run(moveShip)
             self.booster2.run(moveShip)
             self.booster3.run(moveShip)
-            //self.setupNodes()
             
             let moveLives = SKAction.moveBy(x: 0, y: 100, duration: 2)
             self.life1.run(moveLives)
@@ -138,24 +157,19 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    //Sets up nodes at beginning of game
-    func setupNodes() {
-        //ship node physics body
-        ship.physicsBody = SKPhysicsBody(rectangleOf: ship.frame.size)
-        ship.physicsBody!.collisionBitMask = PhysicsCategory.None
-        ship.physicsBody!.categoryBitMask = PhysicsCategory.Ship
-        ship.physicsBody!.contactTestBitMask = PhysicsCategory.Note
-        ship.physicsBody!.affectedByGravity = false
-        ship.zPosition = 100
+    func levelAnimation(level: String, song: String) {
+        //move the labels back to the bottom
+        levelLabel.position.y = -500
+        songLabel.position.y = -540
         
-        //asteroid emiiter
-        let asteroidsPath = Bundle.main.path(forResource: "asteroid", ofType: "sks")!
-        let asteroids = NSKeyedUnarchiver.unarchiveObject(withFile: asteroidsPath) as! SKEmitterNode
+        //set the label text
+        levelLabel.text = "Level \(level)"
+        songLabel.text = song
         
-        asteroids.position.y = 500
-        asteroids.targetNode = self
-        
-        scene?.addChild(asteroids)
+        //move the label
+        let move = SKAction.moveBy(x: 0, y: 1060, duration: 4)
+        levelLabel.run(move)
+        songLabel.run(move)
     }
     
     ///////////////////////
