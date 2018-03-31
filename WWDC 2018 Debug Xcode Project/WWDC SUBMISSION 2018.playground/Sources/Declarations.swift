@@ -8,7 +8,7 @@ public func delay(_ delay:Double, closure:@escaping ()->()) {
 }
 
 //array of all the song titles
-var songTitles = ["Mary Had a Little Lamb", "Song 2", "Song3"]
+var songTitles = ["Mary Had a Little Lamb", "Song 2", "Song3", "Song4"]
 
 //bitmask declarations
 struct PhysicsCategory {

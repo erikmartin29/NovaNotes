@@ -483,7 +483,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         //only generate the song if the game is not over
         if running {
             i = i + 1
-            if i < (song.songArray.count ) {
+            if i < song.songArray.count {
                 if ((song.songArray[i]).0) == "N/A" {
                     //delay the next iteration by delay amount
                     delay(Double((song.songArray[i]).1)) {
@@ -496,16 +496,20 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                     
                     if(songTitles.indices.contains(currentLevel - 1)) {
                         levelAnimation(level:"\(currentLevel)", song: songTitles[currentLevel - 1] )
+                        //clear songArray and repopulate with new song
                         song.clear()
-                        song.setup(level: 2)
+                        song.setup(level: currentLevel)
+                        //reset index
                         i = -1
+                        //wait for the levelAnimation complete before generating the new song
                         delay(6) {
                             self.generateSong()
                         }
                     } else {
-                        print("not here")
+                        //you won?
+                        print("level does not exist")
                     }
-                }else {
+                } else {
                     //spawn note
                     prepareNoteForSpawn(note: ((song.songArray[i]).0), length: ((song.songArray[i]).1))
                     //delay the next iteration by length of not playing
