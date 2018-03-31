@@ -14,5 +14,5 @@ view.addTrackingArea(tracker)
 
 PlaygroundPage.current.needsIndefiniteExecution = true
 view.presentScene(scene)
-
-PlaygroundPage.current.liveView = view
+  
+PlaygroundPage.current.liveView = view 

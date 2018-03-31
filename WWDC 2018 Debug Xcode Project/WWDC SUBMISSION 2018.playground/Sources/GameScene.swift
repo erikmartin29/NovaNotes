@@ -26,6 +26,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var lives = 3
     private var score = 0
     
+    private var currentLevel = 1
+    
     private var running = false
 
     //array of all contacts to be handled in the next frame
@@ -45,7 +47,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         
         delay(6){
         //setup & start generating the song
-        self.setupSong()
+        self.song.setup(level: self.currentLevel)
         self.generateSong()
         }
         
@@ -185,7 +187,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
 
     func shootBeam() {
         //beam is invisible, but is the node that tracks collisions
-        let beam = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 15, height: 15))
+        let beam = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 30, height: 30))
         beam.fillColor = .clear
         beam.strokeColor = .clear
         
@@ -213,13 +215,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             scene?.addChild(beam)
 
             //shoot the bullet
-            beam.physicsBody!.applyImpulse(CGVector(dx: 0.0, dy: 10.0))
+            beam.physicsBody!.applyImpulse(CGVector(dx: 0.0, dy: 70))
         }
     }
 
     public func prepareNoteForSpawn(note: String, length: Double) {
         let noteWidth = 50.00
-       // var noteHeight : Double
         var x: Double = 0
 
         //always start off assuming we have a note and not a delay, may be proved otherwise in the switch statement
@@ -391,8 +392,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 life1.removeFromParent()
                 //death screen
                 deathScreen()
-                
-                print("he DEAD")
+                print("      ^ Re-run to try again")
             }
         }
     }
@@ -429,8 +429,15 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         deathLabel2.fontColor = .white
         deathLabel2.position = CGPoint(x: 0, y : -40)
         
+        let finalScoreLabel = SKLabelNode(text: "Score: \(score)")
+        finalScoreLabel.fontName = "Helvetica Neue Light"
+        finalScoreLabel.fontSize = 60
+        finalScoreLabel.fontColor = .white
+        finalScoreLabel.position = CGPoint(x: 0, y : -250)
+        
         scene?.addChild(deathLabel)
         scene?.addChild(deathLabel2)
+        scene?.addChild(finalScoreLabel)
     }
     
     //when we detect a collision, add it to our queue to be handled in the next frame.
@@ -469,120 +476,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     ////////////////////
 
     let song = Song()
-
-    //this function adds all the notes to the array within the Song class
-    public func setupSong() {
-        //Mary Had a Little Lamb:
-        //low octave
-        song.addNote(note: "E", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "C", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "C", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "C", length: half)
-        song.addDelay(length: half)
-        
-        //high octave
-        song.addNote(note: "E2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "C2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "C2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "E2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "D2", length: quarter)
-        song.addDelay(length: half)
-        song.addNote(note: "C2", length: half)
-        song.addDelay(length: half)
-    }
-
     var i = -1
+    
     //this function takes the array of notes from the Song class and prepares to spawn them into the scene
     public func generateSong() {
         //only generate the song if the game is not over
@@ -594,7 +489,23 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                     delay(Double((song.songArray[i]).1)) {
                         self.generateSong()
                     }
-                } else {
+                }
+                else if ((song.songArray[i]).0) == "end" {
+                    //play the next level
+                    currentLevel += 1
+                    
+                    if(songTitles.indices.contains(currentLevel - 1)) {
+                        levelAnimation(level:"\(currentLevel)", song: songTitles[currentLevel - 1] )
+                        song.clear()
+                        song.setup(level: 2)
+                        i = -1
+                        delay(6) {
+                            self.generateSong()
+                        }
+                    } else {
+                        print("not here")
+                    }
+                }else {
                     //spawn note
                     prepareNoteForSpawn(note: ((song.songArray[i]).0), length: ((song.songArray[i]).1))
                     //delay the next iteration by length of not playing

@@ -7,6 +7,9 @@ public func delay(_ delay:Double, closure:@escaping ()->()) {
     DispatchQueue.main.asyncAfter(deadline: when, execute: closure)
 }
 
+//array of all the song titles
+var songTitles = ["Mary Had a Little Lamb", "Song 2", "Song3"]
+
 //bitmask declarations
 struct PhysicsCategory {
     static let None      : UInt32 = 0
