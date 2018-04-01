@@ -28,12 +28,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private let deathLabel2 = SKLabelNode(text: "Click anywhere to try again.")
     private let finalScoreLabel = SKLabelNode(text: "Score: ")
     
-    //Scoring
+    //Scoring & levels
     private var lives = 5
     private var score = 0
-    
     private var currentLevel = 1
     
+    //this node detects if notes hit the bottom of the screen
     private var bottomDetector : SKShapeNode!
     
     private var running = false
@@ -52,6 +52,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
 
     public override func didMove(to view: SKView) {
         setupNodes()
+        assignNodeProperties()
         intro()
         
         //delay 6 seconds so intro has time to complete
@@ -172,13 +173,42 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         bottomDetector.physicsBody!.categoryBitMask = PhysicsCategory.Bottom
         bottomDetector.physicsBody!.contactTestBitMask = PhysicsCategory.Note
         bottomDetector.physicsBody!.affectedByGravity = false
+
+    }
+    
+    //resets the game if you die
+    func resetGame() {
         
+        //go back to the first level
+        currentLevel = 1
+        
+        //reset lives
+        lives = 5
+        
+        //remove the death menu labels
+        deathLabel.removeFromParent()
+        deathLabel2.removeFromParent()
+        finalScoreLabel.removeFromParent()
+        
+        //set the noeds back to thier starting posistions
         assignNodeProperties()
+        //play intro
+        intro()
+        
+        //reset song array
+        i = -1
+        self.song.clear()
+        
+        //delay 6 seconds so intro has time to complete
+        delay(6){
+            //setup & start generating the song
+            self.song.setup(level: self.currentLevel)
+            self.generateSong()
+        }
     }
     
     //intro sequence when game starts
     func intro() {
-        
         score = 0
         scoreLabel.text = "\(score)"
         
@@ -388,24 +418,21 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         //bullet hit a note:
         if nodeBitmasks.contains(PhysicsCategory.Note) && nodeBitmasks.contains(PhysicsCategory.Bullet) {
 
+            //this big if-else statement essentially finds the x pos. of the collision and plays the right note
             if(contact.bodyA.categoryBitMask == PhysicsCategory.Note) {
-                
                 if let note = contact.bodyA.node {
                     //access the length of the note we hit to play the correct sound
                     let input = Int(round(note.position.x * 20) / 20)
                     let length = Double((10 * round(note.frame.size.height / 10.0)))
                     Sound(input: input, length: length).playSound(in: self)
                 }
-                
             } else {
-                
                 if let note = contact.bodyB.node {
                     //access the length of the note we hit to play the correct sound
                     let input = Int(round(note.position.x * 20) / 20)
                     let length = Double((10 * round(note.frame.size.height / 10.0)))
                     Sound(input: input, length: length).playSound(in: self)
                 }
-                
             }
             
             //add to the score & update label
@@ -436,7 +463,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
 
             //take off one life
             adjustLives()
-            
         }
     }
     
@@ -469,9 +495,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         
         running = false
         resetInProgress = false
-        
-        currentLevel = 1
-   
+
         //remove nodes
         ship.isHidden = true
         scoreTextLabel.isHidden = true
@@ -517,6 +541,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     //ANIMATE THIS LATER
     func winScreen() {
         
+        //stop user interation, but reset is not enabled because you can't reset after a win
         running = false
         resetInProgress = true
  
@@ -529,8 +554,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         life3.isHidden = true
         life4.isHidden = true
         life5.isHidden = true
-        
-        //ship.removeFromParent()
+
         booster1.removeFromParent()
         booster2.removeFromParent()
         booster3.removeFromParent()
@@ -541,8 +565,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 child.removeFromParent()
             }
         }
-        
-        //grow from center??
+
         let winLabel = SKLabelNode(text: "You Won!")
         winLabel.fontName = "Helvetica Neue Light"
         winLabel.fontSize = 65
@@ -571,7 +594,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     override public func mouseMoved(with event: NSEvent) {
         let location = event.location(in:self)
         
-        //only move the ship if the game is still running
+        //only move the ship if user interation is enabled
         if running {
             // move ship to mouse (only x values)
             ship.position.x = location.x
@@ -590,25 +613,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         shootBeam()
         
         if !running && !resetInProgress{
-            
-            deathLabel.removeFromParent()
-            deathLabel2.removeFromParent()
-            finalScoreLabel.removeFromParent()
-            
-            //reset()
-            
-            assignNodeProperties()
-            intro()
-            
-            i = -1
-            self.song.clear()
-            
-            //delay 6 seconds so intro has time to complete
-            delay(6){
-                //setup & start generating the song
-                self.song.setup(level: self.currentLevel)
-                self.generateSong()
-            }
+            resetGame()
         }
     }
  

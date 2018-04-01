@@ -11,7 +11,7 @@ public func delay(_ delay:Double, closure:@escaping ()->()) {
 }
 
 //array of all the song titles
-var songTitles = ["Mary Had a Little Lamb", "Old McDonald Had A Farm", "Song3", "Song4"]
+var songTitles = ["Mary Had a Little Lamb", "Old McDonald Had A Farm", "I'm A Little Teapot", "Itsy-Bitsy Spider"]
 
 //bitmask declarations
 struct PhysicsCategory {
