@@ -9,6 +9,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var life1: SKShapeNode!
     private var life2: SKShapeNode!
     private var life3: SKShapeNode!
+    private var life4: SKShapeNode!
+    private var life5: SKShapeNode!
     private var scoreLabel : SKLabelNode!
     
     private var stars : SKEmitterNode!
@@ -23,10 +25,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var scoreTextLabel : SKLabelNode!
     
     //Scoring
-    private var lives = 3
+    private var lives = 5
     private var score = 0
     
     private var currentLevel = 1
+    
+    private var bottomDetector : SKShapeNode!
     
     private var running = false
 
@@ -53,7 +57,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         //start w/ 3 lives
-        lives = 3
+        lives = 5
         
         //setup physics
         physicsWorld.gravity = CGVector.zero
@@ -78,12 +82,17 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         life1 = scene?.childNode(withName: "life1") as? SKShapeNode
         life2 = scene?.childNode(withName: "life2") as? SKShapeNode
         life3 = scene?.childNode(withName: "life3") as? SKShapeNode
+        life4 = scene?.childNode(withName: "life4") as? SKShapeNode
+        life5 = scene?.childNode(withName: "life5") as? SKShapeNode
         scoreLabel = scene?.childNode(withName: "score") as? SKLabelNode
         scoreTextLabel = scene?.childNode(withName: "scoreTextLabel") as? SKLabelNode
         
         life1.position.y = -550
         life2.position.y = -550
         life3.position.y = -550
+        life4.position.y = -550
+        life5.position.y = -550
+        
         scoreLabel.position.y = -575
         scoreTextLabel.position.y = -575
         
@@ -130,6 +139,14 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         booster3.position.y = ship.position.y
         booster3.particleScale = 0.3
         booster3.targetNode = self
+        
+        //add noteDetector
+        bottomDetector = scene?.childNode(withName: "bottomDetector") as? SKShapeNode
+        bottomDetector.physicsBody = SKPhysicsBody(rectangleOf: bottomDetector.frame.size)
+        bottomDetector.physicsBody!.collisionBitMask = PhysicsCategory.None
+        bottomDetector.physicsBody!.categoryBitMask = PhysicsCategory.Bottom
+        bottomDetector.physicsBody!.contactTestBitMask = PhysicsCategory.Note
+        bottomDetector.physicsBody!.affectedByGravity = false
     }
     
     //intro sequence when game starts
@@ -157,6 +174,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.life1.run(moveLives)
             self.life2.run(moveLives)
             self.life3.run(moveLives)
+            self.life4.run(moveLives)
+            self.life5.run(moveLives)
             self.scoreLabel.run(moveLives)
             self.scoreTextLabel.run(moveLives)
            
@@ -309,12 +328,10 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         let move = SKAction.moveBy(x: 0, y: -1500, duration: 4)
         newNote.run(move)
         
-        
         //to maintain performance, delete note nodes after they leave the screen.
         delay(4) {
             newNote.removeFromParent()
         }
-        
     }
 
     /////////////////////////////
@@ -384,24 +401,46 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                contact.bodyB.node!.removeFromParent()
             }
             
-            //adjust lives
-            if (lives > 1) {
-                //lost life sound effect
-                lives = lives - 1
-                if lives == 2 {
-                    //animate?
-                    //lost life sound effect
-                   life3.removeFromParent()
-                } else if lives == 1 {
-                    //lost life sound effect
-                    //animate?
-                   life2.removeFromParent()
-                }
-            } else {
+            lives = lives - 1
+            switch lives {
+                    case 4:
+                        life5.removeFromParent()
+                    case 3:
+                        life4.removeFromParent()
+                    case 2:
+                        life3.removeFromParent()
+                    case 1:
+                        life2.removeFromParent()
+                    case 0:
+                        life1.removeFromParent()
+                        deathScreen()
+                        print("      ^ Re-run to try again")
+                default:
+                    print("this should not happen")
+            }
+        }
+        
+        //a note hit the bottom:
+        if nodeBitmasks.contains(PhysicsCategory.Bottom) && nodeBitmasks.contains(PhysicsCategory.Note) {
+            
+            print("hit bottom")
+            
+            lives = lives - 1
+            switch lives {
+            case 4:
+                life5.removeFromParent()
+            case 3:
+                life4.removeFromParent()
+            case 2:
+                life3.removeFromParent()
+            case 1:
+                life2.removeFromParent()
+            case 0:
                 life1.removeFromParent()
-                //death screen
                 deathScreen()
                 print("      ^ Re-run to try again")
+            default:
+                print("this should not happen")
             }
         }
     }
@@ -457,17 +496,23 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         running = false
  
         //win animation (change later)
-        ship.removeFromParent()
-        scoreTextLabel.removeFromParent()
-        scoreLabel.removeFromParent()
         
+        //ship flys off screen??
+        ship.removeFromParent()
         booster1.removeFromParent()
         booster2.removeFromParent()
         booster3.removeFromParent()
         
+        //score will move to center??
+        scoreTextLabel.removeFromParent()
+        scoreLabel.removeFromParent()
+        
+        //life fade out?
         life1.removeFromParent()
         life2.removeFromParent()
         life3.removeFromParent()
+        life4.removeFromParent()
+        life5.removeFromParent()
         
         // Removing existing notes
         for child in self.children {
@@ -476,6 +521,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         
+        //grow from center??
         let winLabel = SKLabelNode(text: "You Won!")
         winLabel.fontName = "Helvetica Neue Light"
         winLabel.fontSize = 65

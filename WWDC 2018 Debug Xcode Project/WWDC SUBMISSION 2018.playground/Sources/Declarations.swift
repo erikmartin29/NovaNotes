@@ -19,6 +19,7 @@ struct PhysicsCategory {
     static let Bullet    : UInt32 = 0b1       // 1
     static let Ship      : UInt32 = 0b10      // 2
     static let Note      : UInt32 = 0b100     // 3
+    static let Bottom    : UInt32 = 0b1000    // 4
 }
 
 //defines a word for each not length so it is easier to read
