@@ -5,7 +5,7 @@ import SpriteKit
 public let options = [NSTrackingArea.Options.mouseMoved, NSTrackingArea.Options.activeInKeyWindow, NSTrackingArea.Options.activeAlways, NSTrackingArea.Options.inVisibleRect,] as NSTrackingArea.Options
 
 //delays animations, this makes the code musch easier to read
-public func delay(_ delay:Double, closure:@escaping ()->()) {
+public func delay(_ delay: Double, closure: @escaping ()->()) {
     let when = DispatchTime.now() + delay
     DispatchQueue.main.asyncAfter(deadline: when, execute: closure)
 }

@@ -7,6 +7,7 @@ struct Sound {
     var noteString: String = ""
     
     init(input: Int, length: Double) {
+        
         //find out what note to play (the x value of the note determines what note it is)
         switch input {
             case -350:
