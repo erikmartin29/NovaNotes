@@ -24,6 +24,10 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var songLabel : SKLabelNode!
     private var scoreTextLabel : SKLabelNode!
     
+    private let deathLabel = SKLabelNode(text: "You Died!")
+    private let deathLabel2 = SKLabelNode(text: "Click anywhere to try again.")
+    private let finalScoreLabel = SKLabelNode(text: "Score: ")
+    
     //Scoring
     private var lives = 5
     private var score = 0
@@ -33,6 +37,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var bottomDetector : SKShapeNode!
     
     private var running = false
+    private var resetInProgress = true
 
     //array of all contacts to be handled in the next frame
     var contactQueue = [SKPhysicsContact]()
@@ -64,11 +69,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
     }
     
-    //sets up all initial properties of the nodes
-    func setupNodes() {
-        //ship node
-        ship = scene?.childNode(withName: "ship") as? SKSpriteNode
+    
+    func assignNodeProperties() {
+        //center in the bottom
         ship.position.y = -570
+        ship.position.x = 0
         
         //ship node physics body
         ship.physicsBody = SKPhysicsBody(rectangleOf: ship.frame.size)
@@ -78,23 +83,60 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         ship.physicsBody!.affectedByGravity = false
         ship.zPosition = 100
         
-        //hearts
-        life1 = scene?.childNode(withName: "life1") as? SKShapeNode
-        life2 = scene?.childNode(withName: "life2") as? SKShapeNode
-        life3 = scene?.childNode(withName: "life3") as? SKShapeNode
-        life4 = scene?.childNode(withName: "life4") as? SKShapeNode
-        life5 = scene?.childNode(withName: "life5") as? SKShapeNode
-        scoreLabel = scene?.childNode(withName: "score") as? SKLabelNode
-        scoreTextLabel = scene?.childNode(withName: "scoreTextLabel") as? SKLabelNode
-        
+        //set y posistions
         life1.position.y = -550
         life2.position.y = -550
         life3.position.y = -550
         life4.position.y = -550
         life5.position.y = -550
         
+        //unhide nodes function later
+        ship.isHidden = false
+        life1.isHidden = false
+        life2.isHidden = false
+        life3.isHidden = false
+        life4.isHidden = false
+        life5.isHidden = false
+        scoreTextLabel.isHidden = false
+        scoreLabel.isHidden = false
+        
         scoreLabel.position.y = -575
         scoreTextLabel.position.y = -575
+        
+        levelLabel.position.y = -500
+        songLabel.position.y = -540
+        
+        booster1.position.x = ship.position.x + 50
+        booster1.position.y = ship.position.y
+        booster1.particleScale = 0.1
+        booster1.targetNode = self
+        
+        booster2.position.x = ship.position.x - 50
+        booster2.position.y = ship.position.y
+        booster2.particleScale = 0.1
+        booster2.targetNode = self
+        
+        booster3.position.x = ship.position.x
+        booster3.position.y = ship.position.y
+        booster3.particleScale = 0.3
+        booster3.targetNode = self
+    }
+    
+    //initialises the nodes
+    func setupNodes() {
+        //ship node
+        ship = scene?.childNode(withName: "ship") as? SKSpriteNode
+
+        //hearts
+        life1 = scene?.childNode(withName: "life1") as? SKShapeNode
+        life2 = scene?.childNode(withName: "life2") as? SKShapeNode
+        life3 = scene?.childNode(withName: "life3") as? SKShapeNode
+        life4 = scene?.childNode(withName: "life4") as? SKShapeNode
+        life5 = scene?.childNode(withName: "life5") as? SKShapeNode
+        
+        //score labels
+        scoreLabel = scene?.childNode(withName: "score") as? SKLabelNode
+        scoreTextLabel = scene?.childNode(withName: "scoreTextLabel") as? SKLabelNode
         
         //stars emitter
         let starsPath = Bundle.main.path(forResource: "stars", ofType: "sks")!
@@ -110,36 +152,19 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroids.position.y = 500
         asteroids.targetNode = self
         
+        scene?.addChild(stars)
+        scene?.addChild(asteroids)
+        
         //level labels
         levelLabel = scene?.childNode(withName: "levelLabel") as? SKLabelNode
         songLabel = scene?.childNode(withName: "songLabel") as? SKLabelNode
         
-        levelLabel.position.y = -500
-        songLabel.position.y = -540
-        
         //ship booster effects
         let boosterPath = Bundle.main.path(forResource: "booster", ofType: "sks")!
         booster1 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
-        
-        booster1.position.x = ship.position.x + 50
-        booster1.position.y = ship.position.y
-        booster1.particleScale = 0.1
-        booster1.targetNode = self
-        
         booster2 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
-        
-        booster2.position.x = ship.position.x - 50
-        booster2.position.y = ship.position.y
-        booster2.particleScale = 0.1
-        booster2.targetNode = self
-        
         booster3 = NSKeyedUnarchiver.unarchiveObject(withFile: boosterPath) as! SKEmitterNode
-        
-        booster3.position.x = ship.position.x
-        booster3.position.y = ship.position.y
-        booster3.particleScale = 0.3
-        booster3.targetNode = self
-        
+
         //add noteDetector
         bottomDetector = scene?.childNode(withName: "bottomDetector") as? SKShapeNode
         bottomDetector.physicsBody = SKPhysicsBody(rectangleOf: bottomDetector.frame.size)
@@ -147,14 +172,17 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         bottomDetector.physicsBody!.categoryBitMask = PhysicsCategory.Bottom
         bottomDetector.physicsBody!.contactTestBitMask = PhysicsCategory.Note
         bottomDetector.physicsBody!.affectedByGravity = false
+        
+        assignNodeProperties()
     }
     
     //intro sequence when game starts
     func intro() {
         
-        //add the emitters to the view
-        scene?.addChild(stars)
-        scene?.addChild(asteroids)
+        score = 0
+        scoreLabel.text = "\(score)"
+        
+        //add the emitters to the ship
         scene?.addChild(booster1)
         scene?.addChild(booster2)
         scene?.addChild(booster3)
@@ -392,8 +420,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         //a note hit the ship:
         if nodeBitmasks.contains(PhysicsCategory.Ship) && nodeBitmasks.contains(PhysicsCategory.Note) {
             
-            //ANIMATE LATER??
-            
             //make sure we delete the note and not the ship
             if(contact.bodyA.categoryBitMask == PhysicsCategory.Note) {
                contact.bodyA.node!.removeFromParent()
@@ -401,60 +427,60 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                contact.bodyB.node!.removeFromParent()
             }
             
-            lives = lives - 1
-            switch lives {
-                    case 4:
-                        life5.removeFromParent()
-                    case 3:
-                        life4.removeFromParent()
-                    case 2:
-                        life3.removeFromParent()
-                    case 1:
-                        life2.removeFromParent()
-                    case 0:
-                        life1.removeFromParent()
-                        deathScreen()
-                        print("      ^ Re-run to try again")
-                default:
-                    print("this should not happen")
-            }
+            //take off one life
+            adjustLives()
         }
         
         //a note hit the bottom:
         if nodeBitmasks.contains(PhysicsCategory.Bottom) && nodeBitmasks.contains(PhysicsCategory.Note) {
+
+            //take off one life
+            adjustLives()
             
-            print("hit bottom")
-            
-            lives = lives - 1
-            switch lives {
+        }
+    }
+    
+    func adjustLives() {
+        lives = lives - 1
+        switch lives {
             case 4:
-                life5.removeFromParent()
+               // life5.removeFromParent()
+                life5.isHidden = true
             case 3:
-                life4.removeFromParent()
+               // life4.removeFromParent()
+                life4.isHidden = true
             case 2:
-                life3.removeFromParent()
+               // life3.removeFromParent()
+                life3.isHidden = true
             case 1:
-                life2.removeFromParent()
+               // life2.removeFromParent()
+                life2.isHidden = true
             case 0:
-                life1.removeFromParent()
+                //life1.removeFromParent()
+                life1.isHidden = true
                 deathScreen()
-                print("      ^ Re-run to try again")
             default:
                 print("this should not happen")
-            }
         }
     }
     
     //ANIMATE THIS LATER
     func deathScreen() {
+        
         running = false
+        resetInProgress = false
         
-        //death sound effect
-        
-        //death animation
-        ship.removeFromParent()
-        scoreTextLabel.removeFromParent()
-        scoreLabel.removeFromParent()
+        currentLevel = 1
+   
+        //remove nodes
+        ship.isHidden = true
+        scoreTextLabel.isHidden = true
+        scoreLabel.isHidden = true
+        life1.isHidden = true
+        life2.isHidden = true
+        life3.isHidden = true
+        life4.isHidden = true
+        life5.isHidden = true
         
         booster1.removeFromParent()
         booster2.removeFromParent()
@@ -466,20 +492,18 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 child.removeFromParent()
             }
         }
-        
-        let deathLabel = SKLabelNode(text: "You Died!")
+
         deathLabel.fontName = "Helvetica Neue Light"
         deathLabel.fontSize = 65
         deathLabel.fontColor = .white
         deathLabel.position = CGPoint(x: 0, y : 0)
         
-        let deathLabel2 = SKLabelNode(text: "Re-run to try again.")
         deathLabel2.fontName = "Helvetica Neue Light"
         deathLabel2.fontSize = 30
         deathLabel2.fontColor = .white
         deathLabel2.position = CGPoint(x: 0, y : -40)
-        
-        let finalScoreLabel = SKLabelNode(text: "Score: \(score)")
+
+        finalScoreLabel.text = "Score: \(score)"
         finalScoreLabel.fontName = "Helvetica Neue Light"
         finalScoreLabel.fontSize = 60
         finalScoreLabel.fontColor = .white
@@ -494,26 +518,23 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     func winScreen() {
         
         running = false
+        resetInProgress = true
  
-        //win animation (change later)
+        //hide all nodes
+        ship.isHidden = true
+        scoreTextLabel.isHidden = true
+        scoreLabel.isHidden = true
+        life1.isHidden = true
+        life2.isHidden = true
+        life3.isHidden = true
+        life4.isHidden = true
+        life5.isHidden = true
         
-        //ship flys off screen??
-        ship.removeFromParent()
+        //ship.removeFromParent()
         booster1.removeFromParent()
         booster2.removeFromParent()
         booster3.removeFromParent()
-        
-        //score will move to center??
-        scoreTextLabel.removeFromParent()
-        scoreLabel.removeFromParent()
-        
-        //life fade out?
-        life1.removeFromParent()
-        life2.removeFromParent()
-        life3.removeFromParent()
-        life4.removeFromParent()
-        life5.removeFromParent()
-        
+
         // Removing existing notes
         for child in self.children {
             if child.name == "note" {
@@ -567,6 +588,28 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     public override func mouseDown(with event: NSEvent) {
         //shoots on click
         shootBeam()
+        
+        if !running && !resetInProgress{
+            
+            deathLabel.removeFromParent()
+            deathLabel2.removeFromParent()
+            finalScoreLabel.removeFromParent()
+            
+            //reset()
+            
+            assignNodeProperties()
+            intro()
+            
+            i = -1
+            self.song.clear()
+            
+            //delay 6 seconds so intro has time to complete
+            delay(6){
+                //setup & start generating the song
+                self.song.setup(level: self.currentLevel)
+                self.generateSong()
+            }
+        }
     }
  
     ////////////////////
