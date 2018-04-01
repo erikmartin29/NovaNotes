@@ -45,10 +45,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         setupNodes()
         intro()
         
+        //delay 6 seconds so intro has time to complete
         delay(6){
-        //setup & start generating the song
-        self.song.setup(level: self.currentLevel)
-        self.generateSong()
+            //setup & start generating the song
+            self.song.setup(level: self.currentLevel)
+            self.generateSong()
         }
         
         //start w/ 3 lives
@@ -159,13 +160,14 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.scoreLabel.run(moveLives)
             self.scoreTextLabel.run(moveLives)
            
-            //after these animations complete, start the game
+            //after these animations complete, start running the game
             delay(2){
                 self.running = true
             }
         }
     }
     
+    //animation that play between levels
     func levelAnimation(level: String, song: String) {
         //move the labels back to the bottom
         levelLabel.position.y = -500
@@ -185,7 +187,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     //MARK:Spawning Nodes//
     ///////////////////////
 
+    //shoots a bullet (called whenever the mouse is clicked)
     func shootBeam() {
+        
         //beam is invisible, but is the node that tracks collisions
         let beam = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 30, height: 30))
         beam.fillColor = .clear
@@ -210,6 +214,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         bullet.position.y = 7.5
         bullet.position.x = 7.5
 
+        //only shoot bullets if the game is running
         if running {
             beam.addChild(bullet)
             scene?.addChild(beam)
@@ -301,12 +306,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         scene.addChild(newNote)
         
         //start moving down the screen
-        let move = SKAction.moveBy(x: 0, y: -1500, duration: 2)
+        let move = SKAction.moveBy(x: 0, y: -1500, duration: 4)
         newNote.run(move)
         
         
         //to maintain performance, delete note nodes after they leave the screen.
-        delay(2) {
+        delay(4) {
             newNote.removeFromParent()
         }
         
@@ -339,19 +344,23 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         if nodeBitmasks.contains(PhysicsCategory.Note) && nodeBitmasks.contains(PhysicsCategory.Bullet) {
 
             if(contact.bodyA.categoryBitMask == PhysicsCategory.Note) {
+                
                 if let note = contact.bodyA.node {
                     //access the length of the note we hit to play the correct sound
                     let input = Int(round(note.position.x * 20) / 20)
                     let length = Double((10 * round(note.frame.size.height / 10.0)))
                     Sound(input: input, length: length).playSound(in: self)
                 }
+                
             } else {
+                
                 if let note = contact.bodyB.node {
                     //access the length of the note we hit to play the correct sound
                     let input = Int(round(note.position.x * 20) / 20)
                     let length = Double((10 * round(note.frame.size.height / 10.0)))
                     Sound(input: input, length: length).playSound(in: self)
                 }
+                
             }
             
             //add to the score & update label
@@ -397,8 +406,10 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    //ANIMATE THIS LATER
     func deathScreen() {
         running = false
+        
         //death sound effect
         
         //death animation
@@ -437,6 +448,47 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         
         scene?.addChild(deathLabel)
         scene?.addChild(deathLabel2)
+        scene?.addChild(finalScoreLabel)
+    }
+    
+    //ANIMATE THIS LATER
+    func winScreen() {
+        
+        running = false
+ 
+        //win animation (change later)
+        ship.removeFromParent()
+        scoreTextLabel.removeFromParent()
+        scoreLabel.removeFromParent()
+        
+        booster1.removeFromParent()
+        booster2.removeFromParent()
+        booster3.removeFromParent()
+        
+        life1.removeFromParent()
+        life2.removeFromParent()
+        life3.removeFromParent()
+        
+        // Removing existing notes
+        for child in self.children {
+            if child.name == "note" {
+                child.removeFromParent()
+            }
+        }
+        
+        let winLabel = SKLabelNode(text: "You Won!")
+        winLabel.fontName = "Helvetica Neue Light"
+        winLabel.fontSize = 65
+        winLabel.fontColor = .white
+        winLabel.position = CGPoint(x: 0, y : 0)
+
+        let finalScoreLabel = SKLabelNode(text: "Score: \(score)")
+        finalScoreLabel.fontName = "Helvetica Neue Light"
+        finalScoreLabel.fontSize = 60
+        finalScoreLabel.fontColor = .white
+        finalScoreLabel.position = CGPoint(x: 0, y : -250)
+        
+        scene?.addChild(winLabel)
         scene?.addChild(finalScoreLabel)
     }
     
@@ -480,35 +532,61 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //this function takes the array of notes from the Song class and prepares to spawn them into the scene
     public func generateSong() {
+  
         //only generate the song if the game is not over
         if running {
+         
             i = i + 1
             if i < song.songArray.count {
+                
+                //it was a delay:
                 if ((song.songArray[i]).0) == "N/A" {
                     //delay the next iteration by delay amount
                     delay(Double((song.songArray[i]).1)) {
                         self.generateSong()
                     }
                 }
+                    
+                //it was the end of the song
                 else if ((song.songArray[i]).0) == "end" {
+                   
                     //play the next level
                     currentLevel += 1
                     
+                    //make sure the song title actually exists
                     if(songTitles.indices.contains(currentLevel - 1)) {
-                        levelAnimation(level:"\(currentLevel)", song: songTitles[currentLevel - 1] )
-                        //clear songArray and repopulate with new song
-                        song.clear()
-                        song.setup(level: currentLevel)
-                        //reset index
-                        i = -1
-                        //wait for the levelAnimation complete before generating the new song
-                        delay(6) {
-                            self.generateSong()
-                        }
-                    } else {
-                        //you won?
-                        print("level does not exist")
+                        
+                            delay(2) {
+                                //play level animation
+                                self.levelAnimation(level:"\(self.currentLevel)", song: songTitles[self.currentLevel - 1] )
+                                //clear songArray and repopulate with new song
+                                self.song.clear()
+                                self.song.setup(level: self.currentLevel)
+                                //reset index
+                                self.i = -1
+                                
+                                //wait for the levelAnimation complete before generating the new song
+                                delay(4) {
+                                    self.generateSong()
+                                }
+                            }
                     }
+                        
+                    //if song title doesn't exist; you either won the game or something went wrong
+                    else {
+                            //you probably won, but double check
+                            if currentLevel > 4 /*maxLevels*/ {
+                                //win animation will go here.
+                                delay(2) {
+                                    print("you completed the last level! WIN!!")
+                                    self.winScreen()
+                                }
+                            } else {
+                                print("level does not exist")
+                            }
+                    }
+                    
+                //it is a note:
                 } else {
                     //spawn note
                     prepareNoteForSpawn(note: ((song.songArray[i]).0), length: ((song.songArray[i]).1))

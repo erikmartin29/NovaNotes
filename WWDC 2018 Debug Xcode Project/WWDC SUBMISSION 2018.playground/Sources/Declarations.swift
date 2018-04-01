@@ -1,6 +1,9 @@
 import Foundation
 import SpriteKit
 
+//options for the mouse tracker
+public let options = [NSTrackingArea.Options.mouseMoved, NSTrackingArea.Options.activeInKeyWindow, NSTrackingArea.Options.activeAlways, NSTrackingArea.Options.inVisibleRect,] as NSTrackingArea.Options
+
 //delays animations, this makes the code musch easier to read
 public func delay(_ delay:Double, closure:@escaping ()->()) {
     let when = DispatchTime.now() + delay
@@ -8,7 +11,7 @@ public func delay(_ delay:Double, closure:@escaping ()->()) {
 }
 
 //array of all the song titles
-var songTitles = ["Mary Had a Little Lamb", "Song 2", "Song3", "Song4"]
+var songTitles = ["Mary Had a Little Lamb", "Old McDonald Had A Farm", "Song3", "Song4"]
 
 //bitmask declarations
 struct PhysicsCategory {

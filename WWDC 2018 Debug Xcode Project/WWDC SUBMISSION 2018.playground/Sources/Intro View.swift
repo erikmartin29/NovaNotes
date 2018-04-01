@@ -1,7 +1,6 @@
 import Foundation
 import SpriteKit
 
-///
 public class IntroView: SKScene {
     
     public override func sceneDidLoad() {
@@ -9,7 +8,7 @@ public class IntroView: SKScene {
     }
     
     public override func didMove(to view: SKView) {
-       
+        
     }
 }
 
