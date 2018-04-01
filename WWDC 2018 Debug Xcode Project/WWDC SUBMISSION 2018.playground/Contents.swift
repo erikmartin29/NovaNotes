@@ -17,14 +17,10 @@ import Cocoa
  */
 let scene = GameScene(fileNamed: "GameScene")
 
-let frame = CGRect(x: 0, y: 0, width: 700, height: 1000)
 let view = SKView(frame: frame)
+view.presentScene(scene)
 
 //add tracker to detect mouse location
-let tracker = NSTrackingArea(rect: frame, options: options, owner: view, userInfo: nil)
 view.addTrackingArea(tracker)
-
-PlaygroundPage.current.needsIndefiniteExecution = true
-view.presentScene(scene)
 
 PlaygroundPage.current.liveView = view

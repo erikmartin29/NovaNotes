@@ -3,7 +3,7 @@ import SpriteKit
 
 public class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    //nodes
+    //nodes:
     private var ship: SKSpriteNode!
 
     private var life1: SKShapeNode!
@@ -36,8 +36,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     //this node detects if notes hit the bottom of the screen
     private var bottomDetector : SKShapeNode!
     
-    private var running = false
-    private var resetInProgress = true
+    private var userInterationEnabled = false
+    private var resettingEnabled = false
 
     //array of all contacts to be handled in the next frame
     var contactQueue = [SKPhysicsContact]()
@@ -51,8 +51,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     public override func didMove(to view: SKView) {
+        //initialzise & setup node properties
         setupNodes()
         assignNodeProperties()
+        
+        //play the intro animation
         intro()
         
         //delay 6 seconds so intro has time to complete
@@ -61,9 +64,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.song.setup(level: self.currentLevel)
             self.generateSong()
         }
-        
-        //start w/ 3 lives
-        lives = 5
         
         //setup physics
         physicsWorld.gravity = CGVector.zero
@@ -208,8 +208,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //intro sequence when game starts
     func intro() {
+      
+        //reset score and lives (since this function is also called to reset the game)
         score = 0
         scoreLabel.text = "\(score)"
+        lives = 5
         
         //add the emitters to the ship
         scene?.addChild(booster1)
@@ -236,14 +239,14 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.scoreLabel.run(moveLives)
             self.scoreTextLabel.run(moveLives)
            
-            //after these animations complete, start running the game
+            //after these animations complete, enable user interaction
             delay(2){
-                self.running = true
+                self.userInterationEnabled = true
             }
         }
     }
     
-    //animation that play between levels
+    //animation that plays between levels
     func levelAnimation(level: String, song: String) {
         //move the labels back to the bottom
         levelLabel.position.y = -500
@@ -290,8 +293,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         bullet.position.y = 7.5
         bullet.position.x = 7.5
 
-        //only shoot bullets if the game is running
-        if running {
+        //only shoot bullets if the game is userInterationEnabled
+        if userInterationEnabled {
             beam.addChild(bullet)
             scene?.addChild(beam)
 
@@ -345,18 +348,18 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 print("this shouldn't happen")
         }
 
-        //is note checks if the note being created is not a rest
+        //isNote checks if the note being created is not a rest
         if(isNote) {
             //convert length (in beats) into height of note (1 beat is 100px in length)
             let noteHeight = length * Double(100)
             
             //add the note to the scene
-            addNoteWithOptions(height: CGFloat(noteHeight), xPosition: CGFloat(x), in: self)
+            addNoteWithOptions(height: CGFloat(noteHeight), xPosition: CGFloat(x))
        }
     }
     
     //Spawns new note to the scene
-    public func addNoteWithOptions(height: CGFloat, xPosition: CGFloat, in scene: SKScene) {
+    public func addNoteWithOptions(height: CGFloat, xPosition: CGFloat) {
         
         let newNote = SKShapeNode(rect: CGRect(x: 0, y: height/2, width: 43.75, height: height))
         
@@ -379,7 +382,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         newNote.position.x = CGFloat(xPosition)
         newNote.position.y = 500
         
-        scene.addChild(newNote)
+        scene?.addChild(newNote)
         
         //start moving down the screen
         let move = SKAction.moveBy(x: 0, y: -1500, duration: 4)
@@ -417,7 +420,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         //bullet hit a note:
         if nodeBitmasks.contains(PhysicsCategory.Note) && nodeBitmasks.contains(PhysicsCategory.Bullet) {
 
-            //this big if-else statement essentially finds the x pos. of the collision and plays the right note
+            //this big if-else statement essentially finds the x pos. of the collision and plays the right note by calling the Sound.playSound() function
             if(contact.bodyA.categoryBitMask == PhysicsCategory.Note) {
                 if let note = contact.bodyA.node {
                     //access the length of the note we hit to play the correct sound
@@ -469,19 +472,14 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         lives = lives - 1
         switch lives {
             case 4:
-               // life5.removeFromParent()
                 life5.isHidden = true
             case 3:
-               // life4.removeFromParent()
                 life4.isHidden = true
             case 2:
-               // life3.removeFromParent()
                 life3.isHidden = true
             case 1:
-               // life2.removeFromParent()
                 life2.isHidden = true
             case 0:
-                //life1.removeFromParent()
                 life1.isHidden = true
                 deathScreen()
             default:
@@ -489,13 +487,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    //ANIMATE THIS LATER
     func deathScreen() {
-        
-        running = false
-        resetInProgress = false
+        userInterationEnabled = false
+        resettingEnabled = true
 
-        //remove nodes
+        //hide nodes
         ship.isHidden = true
         scoreTextLabel.isHidden = true
         scoreLabel.isHidden = true
@@ -516,6 +512,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
 
+        //display the death labels
         deathLabel.fontName = "Helvetica Neue Light"
         deathLabel.fontSize = 65
         deathLabel.fontColor = .white
@@ -537,12 +534,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         scene?.addChild(finalScoreLabel)
     }
     
-    //ANIMATE THIS LATER
     func winScreen() {
         
         //stop user interation, but reset is not enabled because you can't reset after a win
-        running = false
-        resetInProgress = true
+        userInterationEnabled = false
+        resettingEnabled = false
  
         //hide all nodes
         ship.isHidden = true
@@ -565,6 +561,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
 
+        //display win labels
         let winLabel = SKLabelNode(text: "You Won!")
         winLabel.fontName = "Helvetica Neue Light"
         winLabel.fontSize = 65
@@ -594,7 +591,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         let location = event.location(in:self)
         
         //only move the ship if user interation is enabled
-        if running {
+        if userInterationEnabled {
             // move ship to mouse (only x values)
             ship.position.x = location.x
             //move the boosters along with the ship (keeping thier relative posistions)
@@ -611,7 +608,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         //shoots on click
         shootBeam()
         
-        if !running && !resetInProgress{
+        //reset game if we're in the death menu & click
+        if !userInterationEnabled && resettingEnabled{
             resetGame()
         }
     }
@@ -621,13 +619,15 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     ////////////////////
 
     let song = Song()
+    
+    //this will keep track of how far we are in the song:
     var i = -1
     
     //this function takes the array of notes from the Song class and prepares to spawn them into the scene
     public func generateSong() {
   
         //only generate the song if the game is not over
-        if running {
+        if userInterationEnabled {
          
             i = i + 1
             if i < song.songArray.count {
@@ -642,7 +642,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                     
                 //it was the end of the song
                 else if ((song.songArray[i]).0) == "end" {
-                   
                     //play the next level
                     currentLevel += 1
                     
@@ -652,7 +651,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                             delay(2) {
                                 //play level animation
                                 self.levelAnimation(level:"\(self.currentLevel)", song: songTitles[self.currentLevel - 1] )
-                                //clear songArray and repopulate with new song
+                                //clear songArray and re-populate with new song
                                 self.song.clear()
                                 self.song.setup(level: self.currentLevel)
                                 //reset index
@@ -663,15 +662,10 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                                     self.generateSong()
                                 }
                             }
-                    }
-                        
-                    //if song title doesn't exist; you either won the game or something went wrong
-                    else {
-                            //you probably won, but double check
-                            if currentLevel > 4 /*maxLevels*/ {
-                                //win animation will go here.
+                    } else {
+                            //if song title doesn't exist; you either won the game or something went wrong you probably won, but double check
+                            if currentLevel > 4 {
                                 delay(2) {
-                                    print("you completed the last level! WIN!!")
                                     self.winScreen()
                                 }
                             } else {
@@ -683,7 +677,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 } else {
                     //spawn note
                     prepareNoteForSpawn(note: ((song.songArray[i]).0), length: ((song.songArray[i]).1))
-                    //delay the next iteration by length of not playing
+                   
+                    //delay the next iteration by length of note
                     delay(Double((song.songArray[i]).1)/2) {
                         self.generateSong()
                     }
@@ -697,6 +692,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     ///////////////////////
     
     public override func update(_ currentTime: TimeInterval) {
+        //procces all the contacts that were detected last frame
         processContacts(forUpdate: currentTime)
     }
 }

@@ -1,8 +1,13 @@
 import Foundation
 import SpriteKit
 
+//frame of the view
+public let frame = CGRect(x: 0, y: 0, width: 700, height: 1000)
+
 //options for the mouse tracker
 public let options = [NSTrackingArea.Options.mouseMoved, NSTrackingArea.Options.activeInKeyWindow, NSTrackingArea.Options.activeAlways, NSTrackingArea.Options.inVisibleRect,] as NSTrackingArea.Options
+public let tracker = NSTrackingArea(rect: frame, options: options, owner: view, userInfo: nil)
+
 
 //delays animations, this makes the code musch easier to read
 public func delay(_ delay:Double, closure:@escaping ()->()) {
