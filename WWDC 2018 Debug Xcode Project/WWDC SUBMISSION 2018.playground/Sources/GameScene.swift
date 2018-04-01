@@ -173,7 +173,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         bottomDetector.physicsBody!.categoryBitMask = PhysicsCategory.Bottom
         bottomDetector.physicsBody!.contactTestBitMask = PhysicsCategory.Note
         bottomDetector.physicsBody!.affectedByGravity = false
-
     }
     
     //resets the game if you die
@@ -190,7 +189,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         deathLabel2.removeFromParent()
         finalScoreLabel.removeFromParent()
         
-        //set the noeds back to thier starting posistions
+        //set the nodes back to thier starting posistions
         assignNodeProperties()
         //play intro
         intro()
