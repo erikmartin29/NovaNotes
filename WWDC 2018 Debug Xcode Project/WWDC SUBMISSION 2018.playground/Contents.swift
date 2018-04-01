@@ -2,7 +2,7 @@ import PlaygroundSupport
 import SpriteKit
 import Cocoa
 /*:
-# *Game Name*
+# *Musical Invaders*
   You are on a mission to save the galaxy, but there's only one problem...
  **your ship got off course and you're headed full speed for disaster!**
  
@@ -17,10 +17,13 @@ import Cocoa
  */
 let scene = GameScene(fileNamed: "GameScene")
 
+let frame = CGRect(x: 0, y: 0, width: 700, height: 1000)
 let view = SKView(frame: frame)
-view.presentScene(scene)
 
 //add tracker to detect mouse location
+public let tracker = NSTrackingArea(rect: frame, options: options, owner: view, userInfo: nil)
 view.addTrackingArea(tracker)
+
+view.presentScene(scene)
 
 PlaygroundPage.current.liveView = view

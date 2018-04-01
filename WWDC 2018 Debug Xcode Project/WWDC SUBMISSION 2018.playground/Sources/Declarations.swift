@@ -1,13 +1,8 @@
 import Foundation
 import SpriteKit
 
-//frame of the view
-public let frame = CGRect(x: 0, y: 0, width: 700, height: 1000)
-
 //options for the mouse tracker
 public let options = [NSTrackingArea.Options.mouseMoved, NSTrackingArea.Options.activeInKeyWindow, NSTrackingArea.Options.activeAlways, NSTrackingArea.Options.inVisibleRect,] as NSTrackingArea.Options
-public let tracker = NSTrackingArea(rect: frame, options: options, owner: view, userInfo: nil)
-
 
 //delays animations, this makes the code musch easier to read
 public func delay(_ delay:Double, closure:@escaping ()->()) {
@@ -16,7 +11,7 @@ public func delay(_ delay:Double, closure:@escaping ()->()) {
 }
 
 //array of all the song titles
-var songTitles = ["Mary Had a Little Lamb", "Old McDonald Had A Farm", "I'm A Little Teapot", "Itsy-Bitsy Spider"]
+var songTitles = ["Mary Had a Little Lamb", "London Bridge", "I'm A Little Teapot", "Itsy-Bitsy Spider"]
 
 //bitmask declarations
 struct PhysicsCategory {

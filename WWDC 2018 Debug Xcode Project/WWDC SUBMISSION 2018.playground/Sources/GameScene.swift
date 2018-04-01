@@ -75,6 +75,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         //center in the bottom
         ship.position.y = -570
         ship.position.x = 0
+        ship.zPosition = 0
         
         //ship node physics body
         ship.physicsBody = SKPhysicsBody(rectangleOf: ship.frame.size)
@@ -90,7 +91,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         life3.position.y = -550
         life4.position.y = -550
         life5.position.y = -550
-        
+      
         //unhide nodes function later
         ship.isHidden = false
         life1.isHidden = false
@@ -121,6 +122,10 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         booster3.position.y = ship.position.y
         booster3.particleScale = 0.3
         booster3.targetNode = self
+        
+        booster1.zPosition = 0
+        booster2.zPosition = 0
+        booster3.zPosition = 0
     }
     
     //initialises the nodes
@@ -144,6 +149,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         stars = NSKeyedUnarchiver.unarchiveObject(withFile: starsPath) as! SKEmitterNode
         
         stars.position.y = 500
+        stars.zPosition = -1
         stars.targetNode = self
         
         //asteroid emiiter
@@ -151,6 +157,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         asteroids = NSKeyedUnarchiver.unarchiveObject(withFile: asteroidsPath) as! SKEmitterNode
         
         asteroids.position.y = 500
+        asteroids.zPosition = -1
         asteroids.targetNode = self
         
         scene?.addChild(stars)
@@ -249,15 +256,17 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     //animation that plays between levels
     func levelAnimation(level: String, song: String) {
         //move the labels back to the bottom
-        levelLabel.position.y = -500
-        songLabel.position.y = -540
+        levelLabel.position.y = 0
+        songLabel.position.y = -30
+        levelLabel.position.x = -500
+        songLabel.position.x = -500
         
         //set the label text
         levelLabel.text = "Level \(level)"
         songLabel.text = song
         
         //move the label
-        let move = SKAction.moveBy(x: 0, y: 1060, duration: 4)
+        let move = SKAction.moveBy(x:1100, y:0, duration: 4)
         levelLabel.run(move)
         songLabel.run(move)
     }
@@ -567,14 +576,21 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         winLabel.fontSize = 65
         winLabel.fontColor = .white
         winLabel.position = CGPoint(x: 0, y : 0)
+        
+        let winLabel2 = SKLabelNode(text: "I hope to see you at WWDC!")
+        winLabel2.fontName = "Helvetica Neue Light"
+        winLabel2.fontSize = 30
+        winLabel2.fontColor = .white
+        winLabel2.position = CGPoint(x: 0, y : -40)
 
         let finalScoreLabel = SKLabelNode(text: "Score: \(score)")
         finalScoreLabel.fontName = "Helvetica Neue Light"
-        finalScoreLabel.fontSize = 60
+        finalScoreLabel.fontSize = 50
         finalScoreLabel.fontColor = .white
         finalScoreLabel.position = CGPoint(x: 0, y : -250)
         
         scene?.addChild(winLabel)
+        scene?.addChild(winLabel2)
         scene?.addChild(finalScoreLabel)
     }
     
