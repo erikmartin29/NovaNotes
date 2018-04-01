@@ -665,18 +665,21 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                         if(songTitles.indices.contains(currentLevel - 1)) {
 
                             
-                            delay(2) {
-                                //play level animation
-                                self.levelAnimation(level: "\(self.currentLevel)", song: songTitles[self.currentLevel - 1])
-                                //clear songArray and re-populate with new song
-                                self.song.clear()
-                                self.song.setup(level: self.currentLevel)
-                                //reset index
-                                self.i = -1
+                            //ensure the game hasn't ended while the last note is generatedcontains
+                            if userInterationEnabled {
+                                delay(2) {
+                                    //play level animation
+                                    self.levelAnimation(level: "\(self.currentLevel)", song: songTitles[self.currentLevel - 1])
+                                    //clear songArray and re-populate with new song
+                                    self.song.clear()
+                                    self.song.setup(level: self.currentLevel)
+                                    //reset index
+                                    self.i = -1
 
-                                //wait for the levelAnimation complete before generating the new song
-                                delay(4) {
-                                    self.generateSong()
+                                    //wait for the levelAnimation complete before generating the new song
+                                    delay(4) {
+                                        self.generateSong()
+                                    }
                                 }
                             }
                             
